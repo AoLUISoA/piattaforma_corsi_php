@@ -114,6 +114,7 @@ $totale_pagine_disponibili = count($pagine_disponibili);
     <div class="nav-container">
         <a href="index.html" class="nav-brand">Learn<span class="brand-accent">ify</span></a>
         <div class="nav-links">
+		<a href="view-teachers.php">Docenti</a>
             <a href="#" class="active">Gestione corsi</a>
 			<a href="student_dashboard.php">Home</a>
             <a href="logout.php" class="nav-logout-btn">Esci</a>

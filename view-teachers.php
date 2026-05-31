@@ -2,7 +2,7 @@
 session_start();
 
 // Controllo di sicurezza: accesso consentito solo agli utenti loggati
-if (!isset($_SESSION['utente_id'])) {
+if (!isset($_SESSION['utente_id']) || $_SESSION['ruolo'] !== 'student') {
     header("Location: login.php");
     exit();
 }
@@ -23,13 +23,30 @@ try {
 $studente_id = $_SESSION['utente_id'];
 $username_studente = $_SESSION['username'];
 
-// ESTRAZIONE DI TUTTI I DOCENTI DALLA TABELLA DEL DATABASE
+// QUERY 1: ESTRAZIONE DI TUTTI I DOCENTI DELLA PIATTAFORMA (Catalogo Generale)
 try {
     $query = $pdo->query("SELECT id, username, email, specializzazione, biografia, sito_web FROM docenti ORDER BY username ASC");
     $elenco_docenti = $query->fetchAll(PDO::FETCH_ASSOC);
     $totale_docenti = count($elenco_docenti);
 } catch (PDOException $e) {
     die("Errore nel recupero della lista docenti: " . $e->getMessage());
+}
+
+// QUERY 2: ESTRAZIONE ESCLUSIVA DEI DOCENTI DELLO STUDENTE LOGGATO
+try {
+    $stmt_miei = $pdo->prepare("
+        SELECT DISTINCT docenti.id, docenti.username, docenti.email, docenti.specializzazione, docenti.biografia, docenti.sito_web
+        FROM iscrizioni_corsi
+        JOIN corsi ON iscrizioni_corsi.corso_id = corsi.id
+        JOIN docenti ON corsi.docente_id = docenti.id
+        WHERE iscrizioni_corsi.studente_id = :studente_id
+        ORDER BY docenti.username ASC
+    ");
+    $stmt_miei->execute([':studente_id' => $studente_id]);
+    $miei_docenti = $stmt_miei->fetchAll(PDO::FETCH_ASSOC);
+    $totale_miei_docenti = count($miei_docenti);
+} catch (PDOException $e) {
+    die("Errore nel recupero dei tuoi docenti: " . $e->getMessage());
 }
 ?>
 
@@ -49,11 +66,11 @@ try {
 <!-- NAVBAR COERENTE -->
 <nav class="navbar">
     <div class="nav-container">
-        <a href="index.php" class="nav-brand">Learn<span class="brand-accent">ify</span></a>
+        <a href="index.html" class="nav-brand">Learn<span class="brand-accent">ify</span></a>
         <div class="nav-links">
-            <a href="index.php">Home</a>
-            <a href="student_dashboard.php">Dashboard</a>
-            <a href="#" class="active">Docenti</a>
+		<a href="#" class="active">Docenti</a>
+            <a href="manage-courses.php">Gestione corsi</a>
+			<a href="student_dashboard.php">Home</a>
             <a href="logout.php" class="nav-logout-btn">Esci</a>
         </div>
     </div>
@@ -63,21 +80,19 @@ try {
     <!-- Banner Introduttivo Corpo Docenti -->
     <section class="profile-banner" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
         <h1>Incontra i nostri Docenti</h1>
-        <p class="profile-role">Formati con i migliori professionisti del settore | Docenti attivi: <?php echo $totale_docenti; ?></p>
+        <p class="profile-role">Formati con i migliori professionisti del settore | Docenti in piattaforma: <?php echo $totale_docenti; ?></p>
     </section>
 
-    <!-- GRIGLIA DEI DOCENTI -->
+    <!-- SEZIONE 1: TUTTI I DOCENTI (CATALOGO GENERALE) -->
     <section class="section-block">
-        <h2 class="section-title">Elenco dei Professori della piattaforma</h2>
+        <h2 class="section-title">Elenco completo dei Professori</h2>
         <div class="courses-grid">
             
             <?php if ($totale_docenti > 0): ?>
                 <?php foreach ($elenco_docenti as $docente): ?>
                     
-                    <!-- CARD DOCENTE STILE LEARNIFY -->
                     <article class="course-card" style="border-left: 4px solid #10b981;">
                         <div class="card-body">
-                            <!-- CONTROLLO SPECIALIZZAZIONE VUOTA -->
                             <span class="badge" style="background: #d1fae5; color: #065f46;">
                                 🎓 <?php echo htmlspecialchars($docente['specializzazione'] ? $docente['specializzazione'] : 'Docente Learnify'); ?>
                             </span>
@@ -85,7 +100,6 @@ try {
                             <h3 style="margin-top: 14px; margin-bottom: 4px;">Prof. <?php echo htmlspecialchars(ucfirst($docente['username'])); ?></h3>
                             <p class="course-info" style="margin-bottom: 12px;">✉️ <?php echo htmlspecialchars($docente['email']); ?></p>
                             
-                            <!-- CONTROLLO SITO WEB (Se c'è lo mostra, altrimenti mette un testo neutro) -->
                             <p class="course-info" style="margin-bottom: 15px; font-size: 0.85rem;">
                                 🌐 Sito: 
                                 <?php if (!empty($docente['sito_web'])): ?>
@@ -95,15 +109,12 @@ try {
                                 <?php endif; ?>
                             </p>
                             
-                            <!-- CONTROLLO BIOGRAFIA VUOTA O STANDARD -->
                             <p class="course-description" style="font-size: 0.85rem; line-height: 1.4;">
                                 <?php 
                                     $bio = trim($docente['biografia']);
-                                    // Se la bio è vuota o ha la frase di default della registrazione
                                     if (empty($bio) || $bio === 'Nessuna biografia inserita.') {
                                         echo '<span style="color:#94a3b8; font-style:italic;">Presentazione personale non ancora compilata dal docente.</span>';
                                     } else {
-                                        // Mostra un estratto se il testo è molto lungo
                                         echo (strlen($bio) > 110) ? substr($bio, 0, 110) . '...' : $bio; 
                                     }
                                 ?>
@@ -118,6 +129,40 @@ try {
                 </div>
             <?php endif; ?>
             
+        </div>
+    </section>
+
+    <!-- SEZIONE 2: I TUOI DOCENTI (FILTRATI SULL'UTENTE LOGGATO) -->
+    <section class="section-block" style="margin-top: 50px;">
+        <h2 class="section-title" style="color: var(--primary);">👨‍🏫 I tuoi docenti di riferimento</h2>
+        <p class="section-subtitle" style="margin: -10px 0 20px 0; font-size: 0.88rem; color: var(--text-muted);">
+            Ecco i professori che tengono i corsi a cui ti sei iscritto.
+        </p>
+        
+        <div class="courses-grid">
+            <?php if ($totale_miei_docenti > 0): ?>
+                <?php foreach ($miei_docenti as $mio_docente): ?>
+                    
+                    <article class="course-card" style="border-left: 4px solid var(--primary); background: #fdfdfd;">
+                        <div class="card-body">
+                            <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                                📚 Mio Professore
+                            </span>
+                            
+                            <h3 style="margin-top: 14px; margin-bottom: 4px;">Prof. <?php echo htmlspecialchars(ucfirst($mio_docente['username'])); ?></h3>
+                            <p class="course-info" style="margin-bottom: 8px; font-size: 0.85rem;">🎯 Area: <?php echo htmlspecialchars($mio_docente['specializzazione']); ?></p>
+                            <p class="course-info" style="margin-bottom: 12px;">✉️ <a href="mailto:<?php echo htmlspecialchars($mio_docente['email']); ?>" style="color: inherit; text-decoration: none;"><?php echo htmlspecialchars($mio_docente['email']); ?></a></p>
+                        </div>
+                    </article>
+
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- Messaggio se lo studente non è ancora iscritto a nessun corso -->
+                <div style="grid-column: span 2; text-align: center; color: #94a3b8; padding: 30px; background: #ffffff; border: 2px dashed #e2e8f0; border-radius: 12px; font-style: italic; font-size: 0.9rem;">
+                    Non hai ancora docenti di riferimento perché non sei iscritto a nessun corso attivo. 
+                    <a href="manage-courses.php" style="color: var(--primary); font-weight: 600; text-decoration: none; font-style: normal;">Scegli un corso ora ➔</a>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 </main>

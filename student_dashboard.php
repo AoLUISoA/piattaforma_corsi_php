@@ -102,8 +102,8 @@ try {
         </a>
         <div class="nav-links">
 		 <a href="view-teachers.php">Docenti</a>
-			<a href="manage-courses.php">Gestione corsi</a> <!-- NUOVO LINK -->
-            <a href="#" class="active">Home</a>
+			<a href="manage-courses.php">Gestione corsi</a>
+			<a href="#" class="active">Home</a>
             <a href="logout.php" class="nav-logout-btn">Esci</a>
         </div>
     </div>
