@@ -4,7 +4,7 @@ session_start();
 
 // Se l'utente è già loggato, lo mandiamo via
 if (isset($_SESSION['ruolo'])) {
-    header("Location: index.php");
+    header("Location: index.html");
     exit();
 }
 
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['ruolo'] = $ruolo;
 
             // 6. REINDIRIZZAMENTO FLUIDO: Prosegue alla pagina di selezione corsi
-            header("Location: select-course.php");
+            header("Location: selectcourse.php");
             exit();
 
         } catch (PDOException $e) {

@@ -1,0 +1,314 @@
+/* --- ACCESSO VARIABILI E DESIGN SYSTEM LEARNIFY --- */
+:root {
+    --bg-main: #f1f5f9;
+    --bg-card: #ffffff;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- SFONDO E LAYOUT CENTRATO SCATOLATO --- */
+.selection-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+
+.selection-container {
+    width: 100%;
+    max-width: 760px; /* Perfettamente in asse con la larghezza della dashboard */
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+}
+
+.selection-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.selection-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+}
+
+.selection-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* --- GRIGLIA ANTI-DISALLINEAMENTO CARD --- */
+.courses-list-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+@media (max-width: 576px) {
+    .courses-list-grid { 
+        grid-template-columns: 1fr; /* Colonna singola per smartphone */
+    }
+}
+
+.course-selectable-option {
+    cursor: pointer;
+    display: block;
+}
+
+/* Nasconde permanentemente la casella di spunta standard del sistema */
+.course-selectable-option input[type="checkbox"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* --- STRUTTURA DELLE CARD BOOTSTRAP DESIGN --- */
+.course-selection-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 22px;
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Spinge il footer della card in basso uniformando l'allineamento */
+    min-height: 220px;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+
+.course-selection-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.course-selection-card h3 {
+    margin: 14px 0 6px 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: -0.01em;
+}
+
+.course-selection-card p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0 0 15px 0;
+    line-height: 1.4;
+    flex-grow: 1; /* Permette al testo della descrizione di espandersi in modo armonioso */
+}
+
+/* --- DETTAGLI E TAG DELLE CARD --- */
+.card-top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Base comune per i Tag delle Categorie */
+.badge-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+/* Mappatura cromatica esatta per tutte le categorie presenti nel Database */
+.badge-tag:not([class*="tag-"]) { background: #f1f5f9; color: #475569; } /* Fallback */
+.course-selection-card:has(.badge-tag) .badge-tag { background: #f1f5f9; color: #475569; }
+
+/* Forziamo la lettura dei tag in base al testo stampato dal PHP (es: tech, business...) */
+.course-selectable-option .tag-tech { background: #e0f2fe; color: #0369a1; }
+.course-selectable-option .tag-business { background: #dcfce7; color: #15803d; }
+.course-selectable-option .tag-design { background: #fae8ff; color: #a21caf; }
+.course-selectable-option .tag-data-ai { background: #f0fdf4; color: #166534; }
+.course-selectable-option .tag-finance { background: #fffbeb; color: #92400e; }
+.course-selectable-option .tag-photography { background: #fdf2f8; color: #9d174d; }
+
+.level-indicator {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.card-bottom-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 12px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* --- INDICATORE VISIVO DELLA SPUNTA CORRENTE --- */
+.checkbox-visual-status {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 50%;
+    position: relative;
+    transition: var(--transition);
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+/* --- ATTIVAZIONE VISIVA DINAMICA AL CLICK DELL'UTENTE --- */
+.course-selectable-option input[type="checkbox"]:checked + .course-selection-card {
+    border-color: var(--primary);
+    background-color: rgba(99, 102, 241, 0.02);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.06);
+}
+
+.course-selectable-option input[type="checkbox"]:checked + .course-selection-card .checkbox-visual-status {
+    border-color: var(--primary);
+    background-color: var(--primary);
+}
+
+/* Generazione della spunta bianca centralizzata all'attivazione */
+.course-selectable-option input[type="checkbox"]:checked + .course-selection-card .checkbox-visual-status::after {
+    content: "✓";
+    color: #ffffff;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 800;
+}
+
+/* --- BOTTONE DI CONFERMA ESTESO --- */
+.btn-submit-selection {
+    width: 100%;
+    background: var(--primary);
+    color: #ffffff;
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    transition: var(--transition);
+}
+
+.btn-submit-selection:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+}
+
+.btn-submit-selection:active {
+    transform: translateY(0);
+}
+
+/* --- SYSTEM INTERFACCIA ALERT MESSAGES --- */
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 25px;
+    text-align: center;
+}
+.alert-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+.empty-db-state { grid-column: span 2; text-align: center; color: var(--text-muted); padding: 30px 10px; font-weight: 500; }
+.selection-counter {
+    display: inline-block;
+    background-color: #f1f5f9;
+    color: var(--text-dark);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 15px;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+/* Effetto quando si raggiunge il limite massimo di 3 corsi */
+.selection-counter.counter-max {
+    background-color: #e0f2fe;
+    color: var(--primary);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+/* Struttura del binario scorrevole per le pagine da 4 corsi */
+.selection-carousel-wrapper {
+    overflow: hidden; /* Taglia fuori le pagine non attive senza rompere la scheda */
+    width: 100%;
+    position: relative;
+}
+
+.selection-carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.selection-carousel-page {
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+/* Vincoliamo la griglia interna a contenere esattamente max 4 elementi ordinati */
+.courses-list-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* --- STILE PUNTINI INDICATORI IN BASSO --- */
+.selection-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 25px;
+    width: 100%;
+}
+
+.select-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #cbd5e1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.select-dot.active {
+    background-color: var(--primary);
+    width: 20px; /* Effetto pillola allungata per la pagina corrente */
+    border-radius: 4px;
+}

@@ -353,3 +353,134 @@ footer {
     .courses-grid { grid-template-columns: 1fr; }
     .nav-links { gap: 12px; }
 }
+/* --- STILI NOTIFICHE COMPATTE GESTIONE CORSI --- */
+.alert-box {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.alert-box.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert-box.warning { background-color: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.alert-box.error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+.selection-carousel-wrapper {
+    overflow: hidden !important; /* Taglia fuori le pagine non attive */
+    width: 100% !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Trasforma la traccia in una linea orizzontale flessibile per lo scivolamento */
+.selection-carousel-track {
+    display: flex !important;
+    flex-direction: row !important; /* Forza i blocchi ad affiancarsi orizzontalmente */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; /* Animazione fluida */
+    width: 100% !important;
+}
+
+/* 3. Forza ogni pagina (contenente max 4 corsi) a prendere esattamente la larghezza del box */
+.selection-carousel-page {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px 5px !important; /* Evita il taglio delle ombreggiature (box-shadow) */
+}
+
+/* 4. Vincola la griglia interna della pagina a mostrare solo 2 colonne speculari */
+.selection-carousel-page .courses-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; /* Esattamente 2 card per riga */
+    gap: 20px !important;
+    width: 100% !important;
+}
+
+/* 5. Stile e spaziatura dei puntini indicatori in basso */
+.selection-carousel-dots {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 25px !important;
+    width: 100% !important;
+}
+
+.select-dot {
+    width: 8px !important;
+    height: 8px !important;
+    background-color: #cbd5e1 !important; /* Grigio chiaro per i pallini inattivi */
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+}
+
+/* Effetto pillola allungata per il pallino della pagina corrente */
+.select-dot.active {
+    background-color: var(--primary) !important; /* Prende il viola/blu del brand */
+    width: 20px !important;
+    border-radius: 4px !important;
+}
+
+/* Ottimizzazione per schermi piccoli (Mobile) */
+@media (max-width: 576px) {
+    .selection-carousel-page .courses-grid { 
+        grid-template-columns: 1fr !important; /* Colonna singola su smartphone */
+    }
+}
+/* --- BACHECA AVVISI UTENTE --- */
+.announcements-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.announcement-card {
+    background: #fff5f5 !important; /* Sfondo rosa/grigio chiarissimo per avvisi */
+    border-left: 4px solid #ef4444 !important; /* Linea rossa Bootstrap di pericolo/avviso */
+    padding: 18px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+    transition: var(--transition);
+}
+
+.announcement-card:hover {
+    transform: translateX(3px);
+    box-shadow: var(--shadow-md);
+}
+
+.announcement-course-tag {
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.announcement-card h4 {
+    margin: 6px 0;
+    color: var(--text-dark);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.announcement-card p {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.announcement-date {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.text-danger {
+    color: #ef4444 !important;
+}
