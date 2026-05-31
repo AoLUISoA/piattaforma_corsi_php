@@ -107,10 +107,9 @@ $corsi_docente = $stmt_corsi->fetchAll(PDO::FETCH_ASSOC);
     <div class="nav-container">
         <a href="index.php" class="nav-brand">Learn<span class="brand-accent">ify</span></a>
         <div class="nav-links">
-            <a href="index.php">Home</a>
-            <a href="teacher_dashboard.php">Pannello Docente</a>
-            <a href="view-students.php">I tuoi Allievi</a>
             <a href="#" class="active">Gestisci Profilo</a>
+            <a href="view-students.php">I tuoi Allievi</a>
+            <a href="teacher_dashboard.php">Home</a>
             <a href="logout.php" class="nav-logout-btn">Esci</a>
         </div>
     </div>

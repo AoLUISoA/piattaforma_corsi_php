@@ -62,7 +62,8 @@ try {
     <div class="nav-container">
         <a href="index.php" class="nav-brand">Learn<span class="brand-accent">ify</span></a>
         <div class="nav-links">
-		 <a href="#" class="active">I tuoi Allievi</a>
+            <a href="manage-profile.php">Gestisci Profilo</a>
+		    <a href="#" class="active">I tuoi Allievi</a>
             <a href="teacher_dashboard.php">Home</a>
             <a href="logout.php" class="nav-logout-btn">Esci</a>
         </div>

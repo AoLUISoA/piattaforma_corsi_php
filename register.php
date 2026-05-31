@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // 4. Recuperiamo l'ID dell'utente appena inserito nel DB
+                        // 4. Recuperiamo l'ID dell'utente appena inserito nel DB
             $nuovo_id = $pdo->lastInsertId();
 
             // 5. Salviamo i dati in sessione così l'utente risulta già loggato
@@ -64,13 +65,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $username;
             $_SESSION['ruolo'] = $ruolo;
 
-            // 6. REINDIRIZZAMENTO FLUIDO: Prosegue alla pagina di selezione corsi
-            header("Location: selectcourse.php");
+            /* =========================================================================
+               6. REINDIRIZZAMENTO DIFFERENZIATO IN BASE AL RUOLO (CORRETTO)
+               ========================================================================= */
+            if ($ruolo === 'student') {
+                // Se è uno studente, deve prima scegliere i suoi corsi attivi
+                header("Location: select-course.php");
+            } else {
+                // Se è un docente, va dritto alla sua dashboard di controllo
+                header("Location: teacher_dashboard.php");
+            }
             exit();
 
         } catch (PDOException $e) {
             $errore = "Si è verificato un errore durante la registrazione. Riprova.";
         }
+
     }
 }
 ?>
