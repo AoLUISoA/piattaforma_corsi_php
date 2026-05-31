@@ -1,4 +1,4 @@
-/* --- REGISTRATION SYSTEM & DESIGN COERENTE --- */
+/* --- DESIGN SYSTEM REGISTRAZIONE LEARNIFY --- */
 :root {
     --bg-main: #f1f5f9;
     --bg-card: #ffffff;
@@ -7,13 +7,13 @@
     --text-dark: #0f172a;
     --text-muted: #64748b;
     --border-color: #cbd5e1;
-    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.05);
     --radius-md: 12px;
     --radius-lg: 20px;
-    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- BASE BACKGROUND CENTRATO --- */
+/* Sfondo e Centratura della Scheda */
 .auth-body {
     display: flex;
     align-items: center;
@@ -21,13 +21,11 @@
     min-height: 100vh;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     padding: 20px;
     box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
 }
 
-/* --- SCHEDA CONTAINER ACCATTIVANTE --- */
 .auth-container {
     width: 100%;
     max-width: 420px;
@@ -38,7 +36,6 @@
     box-sizing: border-box;
 }
 
-/* --- INTESTAZIONE DI REGISTRAZIONE --- */
 .auth-header {
     text-align: center;
     margin-bottom: 30px;
@@ -58,7 +55,6 @@
 
 .back-home:hover {
     color: var(--primary);
-    transform: translateX(-2px);
 }
 
 .auth-header h2 {
@@ -73,7 +69,90 @@
     color: var(--text-muted);
     margin: 0;
     font-size: 0.92rem;
-    line-height: 1.4;
+}
+
+.section-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+/* --- FIX DEL SELETTORE RUOLO (RISOLVE LO SCREENSHOT) --- */
+.section-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+/* --- SELETTORE RUOLO VISIVO ED INTERATTIVO --- */
+.role-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.role-option {
+    cursor: pointer;
+}
+
+.role-option input[type="radio"] {
+    display: none; /* Nasconde il pallino nativo */
+}
+
+.role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: var(--transition);
+    background: #ffffff;
+}
+
+.role-card i {
+    font-size: 1.6rem;
+    color: #94a3b8;
+    transition: var(--transition);
+}
+
+.role-card span {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+/* Effetto al Passaggio del Mouse (Hover) */
+.role-option:hover .role-card {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+/* Effetto di Selezione Attiva Generato via Radio Check */
+.role-option input[type="radio"]:checked + .role-card {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+}
+
+.role-option input[type="radio"]:checked + .role-card i {
+    color: var(--primary);
+}
+
+.role-option input[type="radio"]:checked + .role-card span {
+    color: var(--primary);
 }
 
 /* --- STRUTTURA DEI CAMPI INPUT --- */
@@ -100,7 +179,7 @@
     width: 100%;
     padding: 12px 16px;
     font-size: 0.95rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid #cbd5e1;
     border-radius: var(--radius-md);
     background-color: #f8fafc;
     color: var(--text-dark);
@@ -115,7 +194,40 @@
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-/* --- BOTTONE DI INVIO ESTESO --- */
+/* --- STRUTTURA CAMPI FORM --- */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    background-color: #f8fafc;
+    color: var(--text-dark);
+    box-sizing: border-box;
+    transition: var(--transition);
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
 .btn-block {
     width: 100%;
     display: inline-flex;
@@ -132,24 +244,13 @@
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
     transition: var(--transition);
-    margin-top: 10px;
 }
 
 .btn-block:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
 }
 
-.btn-block:active {
-    transform: translateY(0);
-}
-
-.btn-block i {
-    font-size: 0.95rem;
-}
-
-/* --- FOOTER REGISTRAZIONE --- */
 .auth-footer {
     text-align: center;
     margin-top: 30px;
@@ -163,10 +264,4 @@
     color: var(--primary);
     text-decoration: none;
     font-weight: 600;
-    transition: var(--transition);
-}
-
-.auth-footer a:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
 }

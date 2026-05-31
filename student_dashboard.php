@@ -20,7 +20,7 @@
         <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="#" class="active">Dashboard</a>
-            <a href="login.html" class="nav-logout-btn">Esci</a>
+            <a href="logout.php" class="nav-logout-btn">Esci</a>
         </div>
     </div>
 </nav>

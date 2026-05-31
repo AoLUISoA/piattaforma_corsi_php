@@ -4,12 +4,12 @@ session_start();
 
 // Controllo di sicurezza: se l'utente non si è registrato/loggato, lo rimandiamo al login
 if (!isset($_SESSION['utente_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 
-// PARAMETRI DI CONNESSIONE AL TUO DATABASE (Modificali con i tuoi dati reali)
-$host = 'localhost';
+// PARAMETRI DI CONNESSIONE AL TUO DATABASE IN LOCALE SU XAMPP
+$host = '127.0.0.1';
 $dbname = 'learnify_db';
 $db_user = 'root';
 $db_pass = '';
@@ -26,31 +26,36 @@ $messaggio = "";
 $tipo_messaggio = "";
 
 // LOGICA: Quando l'utente preme il pulsante per confermare la scelta dei corsi
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['corsi_selezionati'])) {
-    $utente_id = $_SESSION['utente_id'];
-    $corsi_scelti = $_POST['corsi_selezionati']; // Array contenente gli ID dei corsi selezionati
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $studente_id = $_SESSION['utente_id'];
+    
+    // Verifichiamo se l'utente ha effettivamente selezionato almeno una casella
+    if (isset($_POST['corsi_selezionati']) && !empty($_POST['corsi_selezionati'])) {
+        $corsi_scelti = $_POST['corsi_selezionati']; // Array contenente gli ID dei corsi selezionati
 
-    if (!empty($corsi_scelti)) {
         try {
-            // Prepariamo la query di inserimento per evitare SQL Injection
-            $stmt = $pdo->prepare("INSERT IGNORE INTO iscrizioni_corsi (utente_id, corso_id) VALUES (:utente_id, :corso_id)");
+            /* 
+               CORREZIONE CHIAVE: Cambiato 'utente_id' in 'studente_id' 
+               per combaciare perfettamente con la nuova tabella 'iscrizioni_corsi'
+            */
+            $stmt = $pdo->prepare("INSERT IGNORE INTO iscrizioni_corsi (studente_id, corso_id, progresso) VALUES (:studente_id, :corso_id, 0)");
             
             foreach ($corsi_scelti as $corso_id) {
                 $stmt->execute([
-                    ':utente_id' => $utente_id,
+                    ':studente_id' => $studente_id,
                     ':corso_id' => intval($corso_id)
                 ]);
             }
             
-            // Reindirizziamo l'utente alla sua Dashboard Studente appena l'operazione ha successo
-            header("Location: dashboard-studente.php");
+            // CORREZIONE REINDIRIZZAMENTO: Reindirizziamo l'utente alla pagina esatta del layout studente
+            header("Location: student_dashboard.php");
             exit();
         } catch (PDOException $e) {
-            $messaggio = "Si è verificato un errore durante l'iscrizione.";
+            $messaggio = "Si è verificato un errore durante l'iscrizione nel database.";
             $tipo_messaggio = "error";
         }
     } else {
-        $messaggio = "Per favore, seleziona almeno un corso per continuare.";
+        $messaggio = "Per favore, seleziona almeno un corso prima di confermare.";
         $tipo_messaggio = "warning";
     }
 }
@@ -63,6 +68,7 @@ try {
     die("Errore nel recupero dei corsi: " . $e->getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
