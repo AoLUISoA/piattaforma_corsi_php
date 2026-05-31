@@ -1,0 +1,416 @@
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --text-dark: #0f172a;
+    --text-muted: #475569;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- BASE STYLES --- */
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    
+    /* Lo sfondo del body resta trasparente solo per far emergere il video sotto */
+}
+.video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -100 !important; /* Resta bloccato dietro a tutto, ma l'header viola lo coprirà in alto */
+    overflow: hidden;
+}
+
+.video-bg-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Taglia e adatta il video a schermo intero senza deformarlo */
+}
+
+/* --- MASCHERA OPACA GRIGIO-VIOLA (SBLOCCA LA LEGGIBILITÀ) --- */
+.video-overlay-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gradiente opaco all'85% tarato sui toni grigi e sul viola del brand (#6366f1) */
+    background: linear-gradient(
+        135deg, 
+        rgba(241, 245, 249, 0.85) 0%, 
+        rgba(99, 102, 241, 0.15) 100%
+    );
+    z-index: 1; /* Sta sopra al video in movimento ma sotto ai tuoi contenuti */
+}
+/* --- HEADER & HERO --- */
+header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    padding-top: 0;
+}
+
+.header-content {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+header h1 {
+    margin: 15px 0 0 0;
+    font-size: 2.3rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 15px 0 30px 0;
+    font-weight: 400;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-block;
+}
+
+/* --- PULSANTI --- */
+.cta-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: #312e81;
+    transform: translateY(-2px);
+}
+
+/* --- BOX COMPATTI (RESTRETTI RISPETTO A PRIMA) --- */
+.container-compact {
+    max-width: 680px; /* Ristretto per un look più elegante e centrato */
+    margin: -35px auto 35px auto;
+    background: var(--bg-card);
+    padding: 25px 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+}
+
+.carousel-compact {
+    max-width: 780px; /* Ristretto per evitare dispersione visiva sui lati */
+    margin: 0 auto 60px auto;
+    background: var(--bg-card);
+    padding: 35px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+}
+
+/* --- GRID STATISTICHE --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* --- SEZIONE RICERCA INTERATTIVA --- */
+.search-box-container {
+    margin-top: 15px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#courseSearch {
+    width: 100%;
+    max-width: 450px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: var(--transition);
+    background-color: var(--bg-main);
+}
+
+#courseSearch:focus {
+    border-color: var(--primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.section-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* --- STRUCTURE CAROSELLO --- */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 35px;
+    box-sizing: border-box;
+}
+
+.carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.carousel-page {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+/* --- CARD DEI CORSI COMPATTE --- */
+.course-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: transparent;
+    box-shadow: var(--shadow-md);
+}
+
+.course-card h3 {
+    margin: 8px ;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.course-card p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0 0 15px 0;
+}
+
+/* Tag Categorie */
+.course-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    align-self: flex-start;
+}
+
+.tag-tech { background: #e0f2fe; color: #0369a1; }
+.tag-business { background: #dcfce7; color: #15803d; }
+.tag-design { background: #fae8ff; color: #a21caf; }
+
+/* Footer Card */
+.course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.price {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+/* --- BOTTONI FRECCIA (RESET & STILE BRAND) --- */
+.carousel-container button.carousel-btn {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-color) !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border-radius: 50% !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: var(--transition) !important;
+    box-shadow: var(--shadow-md) !important;
+    
+    font-size: 16px !important;
+    font-weight: bold !important;
+    font-family: Arial, sans-serif !important;
+    line-height: 1 !important;
+    color: var(--text-dark) !important;
+}
+
+.carousel-container button.carousel-btn:hover {
+    background-color: var(--primary) !important;
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+.carousel-container button.prev-btn { left: -5px !important; }
+.carousel-container button.next-btn { right: -5px !important; }
+
+/* --- PUNTINI INDICATORI --- */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--border-color) !important;
+    background: var(--border-color) !important;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background-color: var(--primary) !important;
+    background: var(--primary) !important;
+    width: 20px;
+    border-radius: 5px;
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 768px) {
+    .carousel-page { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; gap: 15px; }
+}
+
+.logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.brand-logo {
+    width: 100%;
+    max-width: 480px; /* Dimensione elegante e bilanciata */
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+/* Effetto micro-interazione al passaggio del mouse sul logo */
+.brand-logo:hover {
+    transform: scale(1.03);
+}
+
+/* Ottimizzazione per schermi piccoli (Mobile) */
+@media (max-width: 768px) {
+    .brand-logo {
+        max-width: 240px;
+    }
+}

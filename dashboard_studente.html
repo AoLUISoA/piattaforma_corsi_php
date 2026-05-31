@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Studente - Learnify</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="studentistyle.css">
+</head>
+<body>
+
+<!-- NAVBAR IN STILE BOOTSTRAP PREMIUM -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            Learn<span class="brand-accent">ify</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#" class="active">Dashboard</a>
+            <a href="login.html" class="nav-logout-btn">Esci</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <!-- Profilo Studente -->
+    <section class="profile-banner">
+        <h1>Benvenuto, Luigi</h1>
+        <p class="profile-role">Profilo: Studente Universitario</p>
+    </section>
+
+    <!-- Sezione I Miei Corsi -->
+    <section class="section-block">
+        <h2 class="section-title">I miei corsi in voga</h2>
+        <div class="courses-grid">
+            <article class="course-card">
+                <div class="card-body">
+                    <h3>Programmazione C</h3>
+                    <p class="course-info">Progresso attuale dello studio:</p>
+                    <!-- Barra di progresso visiva avanzata -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 65%;"></div>
+                    </div>
+                    <span class="progress-text">65% Completato</span>
+                </div>
+                <div class="card-actions">
+                    <a href="#" class="btn-course btn-resume">Continua corso</a>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="card-body">
+                    <h3>Database SQL</h3>
+                    <p class="course-info">Progresso attuale dello studio:</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 40%;"></div>
+                    </div>
+                    <span class="progress-text">40% Completato</span>
+                </div>
+                <div class="card-actions">
+                    <a href="#" class="btn-course btn-resume">Continua corso</a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Sezione Corsi Disponibili -->
+    <section class="section-block">
+        <h2 class="section-title">Catalogo corsi disponibili</h2>
+        <div class="courses-grid">
+            <article class="course-card">
+                <div class="card-body">
+                    <h3>Sviluppo Web</h3>
+                    <p class="course-info">Livello consigliato: <span class="badge badge-base">Base</span></p>
+                    <p class="course-description">Impara le fondamenta del web moderno partendo da zero.</p>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-course btn-join">Iscriviti al corso</button>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="card-body">
+                    <h3>Cyber Security</h3>
+                    <p class="course-info">Livello consigliato: <span class="badge badge-medium">Intermedio</span></p>
+                    <p class="course-description">Proteggi le reti informatiche e previeni gli attacchi hacker.</p>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-course btn-join">Iscriviti al corso</button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Sezione Feedback -->
+    <section class="feedback-section">
+        <h2 class="section-title">Lascia un feedback sulla tua esperienza</h2>
+        <p class="section-subtitle">La tua opinione è fondamentale per migliorare la qualità dei nostri percorsi formativi.</p>
+
+        <form class="feedback-form">
+            <div class="form-group">
+                <label>Seleziona il Corso</label>
+                <select>
+                    <option>Programmazione C</option>
+                    <option>Database SQL</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Valutazione del percorso</label>
+                <select>
+                    <option>⭐ 5 - Eccellente</option>
+                    <option>⭐ 4 - Molto Buono</option>
+                    <option>⭐ 3 - Soddisfacente</option>
+                    <option>⭐ 2 - Insufficiente</option>
+                    <option>⭐ 1 - Scarso</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Inserisci un tuo commento personale</label>
+                <textarea rows="4" placeholder="Scrivi qui cosa ne pensi del corso, i punti di forza e cosa miglioreresti..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit-form">
+                Invia Feedback Ufficiale
+            </button>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2026 Learnify. Tutti i diritti riservati.</p>
+</footer>
+
+</body>
+</html>

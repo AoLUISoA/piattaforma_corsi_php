@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Piattaforma Corsi Online</title>
+    <!-- Font e Icone -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <link rel="stylesheet" href="loginstyle.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-container">
+    <div class="auth-header">
+        <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Torna alla home</a>
+        <h2>Bentornato!</h2>
+        <p>Seleziona il tuo profilo e inserisci le tue credenziali.</p>
+    </div>
+
+    <form>
+        <!-- Selettore di Ruolo Visivo -->
+        <label class="section-label">Chi sei?</label>
+        <div class="role-selector">
+            <label class="role-option">
+                <input type="radio" name="role" value="student" checked>
+                <div class="role-card">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Allievo</span>
+                </div>
+            </label>
+
+            <label class="role-option">
+                <input type="radio" name="role" value="teacher">
+                <div class="role-card">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Docente</span>
+                </div>
+            </label>
+        </div>
+
+        <!-- Campi di Input -->
+        <div class="input-group">
+            <label for="username"><i class="fa-regular fa-user"></i> Username</label>
+            <input type="text" id="username" placeholder="Inserisci il tuo username" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-actions">
+            <a href="#" class="forgot-password">Password dimenticata?</a>
+        </div>
+
+        <button type="submit" class="btn btn-block">
+            Accedi <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+    </form>
+
+    <div class="auth-footer">
+        <p>Non hai un account? <a href="register.html">Registrati ora</a></p>
+    </div>
+</div>
+
+</body>
+</html>
