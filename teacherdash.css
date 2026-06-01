@@ -279,28 +279,6 @@ main {
     background-color: #ffffff;
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
-
-.btn-submit-form {
-    width: 100%;
-    background: var(--primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
-    transition: var(--transition);
-}
-
-.btn-submit-form:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
-}
-
 /* --- ALERTS & FOOTER --- */
 .alert-box {
     padding: 14px 18px;
@@ -394,17 +372,498 @@ footer {
     margin-right: 8px;
     vertical-align: middle;
 }
-
-.table-progress-bar {
-    background: #10b981; /* Sfrutta il colore verde dei docenti per coerenza */
-    height: 100%;
-    border-radius: 10px;
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05);
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.table-progress-text {
-    font-size: 0.8rem;
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+main {
+    max-width: 720px;
+    margin: 30px auto 60px auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   2. NAVBAR E LAYOUT STRUTTURALE
+   ========================================================================== */
+.navbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-container {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    text-decoration: none;
+    letter-spacing: -0.03em;
+}
+
+.brand-accent { color: var(--primary); }
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+.nav-logout-btn {
+    background: #f1f5f9;
+    padding: 6px 14px;
+    border-radius: 8px;
+}
+.nav-logout-btn:hover {
+    background: #fee2e2 !important;
+    color: #ef4444 !important;
+}
+
+.section-block { margin-bottom: 35px; }
+
+.section-title {
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #059669;
-    display: inline-block;
-    vertical-align: middle;
+    letter-spacing: -0.02em;
+    color: var(--text-dark);
+    margin: 0 0 15px 0;
+}
+
+.profile-banner {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 24px 28px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 35px;
+}
+
+.profile-banner h1 {
+    margin: 0 0 4px 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.profile-role {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #d1fae5;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   3. SCHEDE DEI CORSI ED ELEMENTI INTERNI
+   ========================================================================== */
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.course-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 220px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-body { flex-grow: 1; }
+
+.course-card h3 {
+    margin: 12px 0 6px 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-dark);
+}
+
+.course-description {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0 0 15px 0;
+    line-height: 1.4;
+}
+
+.teacher-stats-info {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 12px;
+    margin-top: 10px;
+}
+
+.student-count {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.course-meta {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* --- BADGES --- */
+.badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.tag-tech { background: #e0f2fe; color: #0369a1; }
+.tag-business { background: #dcfce7; color: #15803d; }
+.tag-design { background: #fae8ff; color: #a21caf; }
+.tag-data-ai { background: #f0fdf4; color: #166534; }
+.tag-finance { background: #fffbeb; color: #92400e; }
+.tag-photography { background: #fdf2f8; color: #9d174d; }
+
+/* ==========================================================================
+   4. STRUTTURA VECCHIA BOTTONI E MODULO CREAZIONE
+   ========================================================================== */
+.card-actions { margin-top: 15px; width: 100%; display: flex; gap: 10px; padding: 15px; background-color: #fafafa; border-top: 1px solid var(--border-color); }
+
+.btn-course {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-delete { background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; }
+.btn-delete:hover { background: #ef4444; color: white; transform: translateY(-1px); }
+.btn-edit { background-color: #007bff; color: white; border: none; }
+.btn-edit:hover { background-color: #0056b3; transform: translateY(-1px); }
+
+.course-creation-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-top: 45px;
+}
+
+.section-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: -10px 0 25px 0;
+}
+
+.form-group { margin-bottom: 18px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.creation-form label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+}
+
+.creation-form input, .creation-form select, .creation-form textarea {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    color: var(--text-dark);
+    box-sizing: border-box;
+    outline: none;
+    transition: var(--transition);
+}
+
+.creation-form input:focus, .creation-form select:focus, .creation-form textarea:focus {
+    border-color: var(--primary);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* ==========================================================================
+   5. TABELLE DI TRACCIAMENTO E ALERTS
+   ========================================================================== */
+.alert-box { padding: 14px 18px; border-radius: 10px; font-size: 0.92rem; font-weight: 600; margin-bottom: 30px; text-align: center; }
+.alert-box.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert-box.warning { background-color: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.alert-box.error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+.empty-dashboard-state { grid-column: span 2; text-align: center; color: var(--text-muted); padding: 30px 10px; }
+
+.table-responsive { width: 100%; overflow-x: auto; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.students-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+.students-table th { background-color: #f8fafc; color: var(--text-dark); font-weight: 700; padding: 14px 18px; border-bottom: 2px solid var(--border-color); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.05em; }
+.students-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; color: var(--text-dark); vertical-align: middle; }
+.students-table tbody tr:hover { background-color: #f8fafc; }
+
+.td-course-title { font-weight: 600; color: #1e1b4b; }
+.td-student-name { font-weight: 600; }
+.td-student-email { color: var(--text-muted); }
+.table-progress-container { background: #f1f5f9; width: 100%; height: 8px; border-radius: 10px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.table-progress-bar { background: #10b981; height: 100%; border-radius: 10px; }
+.table-progress-text { font-size: 0.8rem; font-weight: 700; color: #059669; display: inline-block; vertical-align: middle; }
+
+footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 0.82rem; border-top: 1px solid var(--border-color); margin-top: 60px; background: #ffffff; }
+
+@media (max-width: 576px) {
+    .courses-grid, .form-row { grid-template-columns: 1fr; }
+    .nav-links { gap: 12px; }
+}
+
+/* ==========================================================================
+   6. NUOVI BOTTONI PREMIUM FLUIDI E MODERNI LATO DOCENTE
+   ========================================================================== */
+.card-actions-teacher-grid {
+    display: flex !important;
+    gap: 12px !important;
+    padding: 15px 22px 22px 22px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+.card-actions-teacher-grid .btn-course {
+    flex: 1 !important;
+    width: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px;
+    padding: 11px 16px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    text-decoration: none !important;
+}
+
+/* Pulsante Modifica (Azzurro / Blu Moderno Fluid) */
+.btn-edit-teacher {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+    color: #0369a1 !important;
+    box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.05);
+}
+
+.btn-edit-teacher:hover {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Pulsante Rimuovi Corso (Rosso Soft / Fuoco Fluid) */
+.btn-delete-teacher {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+    color: #dc2626 !important;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.05);
+}
+
+.btn-delete-teacher:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.25) !important;
+}
+
+/* --- BOTTONI GESTIONE SLIDE DENTRO IL MODULO E LA MODALE --- */
+.slide-controls .btn-course {
+    padding: 10px 18px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+/* Aggiungi Slide (Verde Neon Premium) */
+.btn-slide-add {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+}
+
+.btn-slide-add:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(22, 163, 74, 0.15) !important;
+}
+
+/* Rimuovi Slide (Arancio / Rosso Soft) */
+.btn-slide-remove {
+    background: #fff5f5 !important;
+    color: #e53e3e !important;
+}
+
+.btn-slide-remove:hover {
+    background: #e53e3e !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(229, 62, 62, 0.15) !important;
+}
+
+/* --- BOTTONE INVIO/PUBBLICAZIONE FINALE DEI FORM --- */
+.btn-submit-form {
+    width: 100% !important;
+    background: linear-gradient(135deg, var(--primary, #6366f1) 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    padding: 14px 28px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.98rem !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2) !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.btn-submit-form:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+    transform: translateY(-3px) scale(1.01) !important;
+    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35) !important;
+}
+
+.btn-submit-form:active {
+    transform: translateY(-1px) scale(0.99) !important;
+}
+
+.modal-content .form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    margin-bottom: 15px !important;
+    width: 100% !important;
+}
+
+.modal-content .form-group label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+/* Sistema la riga Categoria/Livello affiancandoli al 50% anche dentro la modale */
+.modal-content .form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+    margin-bottom: 15px !important;
+    width: 100% !important;
+}
+
+/* Forza la formattazione corretta dei campi input e select nella modale */
+.modal-content input, 
+.modal-content select, 
+.modal-content textarea {
+    width: 100% !important;
+    padding: 11px 14px !important;
+    font-size: 0.92rem !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background-color: #f8fafc !important;
+    color: var(--text-dark) !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+.modal-content input:focus, 
+.modal-content select:focus, 
+.modal-content textarea:focus {
+    border-color: var(--primary) !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Corregge i bottoni di controllo delle slide posizionandoli visibili e affiancati */
+.modal-content .slide-controls {
+    display: flex !important;
+    gap: 12px !important;
+    margin: 15px 0 !important;
+    width: 100% !important;
+}
+
+.modal-content .slide-controls .btn-course {
+    flex: 1 !important;
+    padding: 10px 18px !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
 }

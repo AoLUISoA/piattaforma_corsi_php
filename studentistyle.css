@@ -83,6 +83,17 @@ body {
     background: #fee2e2 !important;
     color: #ef4444 !important;
 }
+.course-header-meta {
+    display: flex;       /* Attiva il layout flessibile */
+    align-items: center; /* Allinea verticalmente i due testi al centro */
+    gap: 15px;           /* Crea uno spazio di 15px tra la categoria e il docente */
+}
+
+/* Opzionale: azzera il margine del paragrafo per evitare disallineamenti */
+.course-header-meta .badge-tag {
+    margin: 0; 
+}
+
 
 /* --- MAIN & SEZIONI --- */
 main {

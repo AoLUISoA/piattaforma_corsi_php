@@ -24,15 +24,28 @@ $studente_id = $_SESSION['utente_id'];
 $messaggio = "";
 $tipo_messaggio = "";
 
-// --- AZIONE 1: GESTIONE DISISCRIZIONE (CANCELLAZIONE) ---
+// --- AZIONE 1: GESTIONE DISISCRIZIONE (CON CONTROLLO SICUREZZA 100%) ---
 if (isset($_GET['action']) && $_GET['action'] === 'unsubscribe' && isset($_GET['corso_id'])) {
     $corso_id = intval($_GET['corso_id']);
+    
     try {
-        $stmt_del = $pdo->prepare("DELETE FROM iscrizioni_corsi WHERE studente_id = :studente_id AND corso_id = :corso_id");
-        $stmt_del->execute([':studente_id' => $studente_id, ':corso_id' => $corso_id]);
-        
-        $messaggio = "Cancellazione dal corso effettuata con successo.";
-        $tipo_messaggio = "success";
+        // Controllo di sicurezza: verifichiamo che il corso non sia già completato al 100%
+        $stmt_sec = $pdo->prepare("SELECT progresso FROM iscrizioni_corsi WHERE studente_id = :studente_id AND corso_id = :corso_id");
+        $stmt_sec->execute([':studente_id' => $studente_id, ':corso_id' => $corso_id]);
+        $check_corso = $stmt_sec->fetch(PDO::FETCH_ASSOC);
+
+        if ($check_corso && intval($check_corso['progresso']) === 100) {
+            // Blocca la rimozione se il corso risulta completato
+            $messaggio = "⚠️ Azione non consentita. Non puoi abbandonare un corso che hai già completato al 100%.";
+            $tipo_messaggio = "error";
+        } else {
+            // Esegue la cancellazione regolare solo se il corso è ancora in svolgimento
+            $stmt_del = $pdo->prepare("DELETE FROM iscrizioni_corsi WHERE studente_id = :studente_id AND corso_id = :corso_id");
+            $stmt_del->execute([':studente_id' => $studente_id, ':corso_id' => $corso_id]);
+            
+            $messaggio = "Cancellazione dal corso effettuata con successo.";
+            $tipo_messaggio = "success";
+        }
     } catch (PDOException $e) {
         $messaggio = "Errore durante la disiscrizione dal corso.";
         $tipo_messaggio = "error";
@@ -66,35 +79,50 @@ if (isset($_GET['action']) && $_GET['action'] === 'subscribe' && isset($_GET['co
 }
 
 // --- RECUPERO DATI PER LE GRIGLIE ---
-// 1. Corsi a cui lo studente È ATTUALMENTE ISCRITTO
-$stmt_iscritti = $pdo->prepare("
-    SELECT corsi.* FROM iscrizioni_corsi 
-    JOIN corsi ON iscrizioni_corsi.corso_id = corsi.id 
-    WHERE iscrizioni_corsi.studente_id = :studente_id
-");
-$stmt_iscritti->execute([':studente_id' => $studente_id]);
-$corsi_attivi_elenco = $stmt_iscritti->fetchAll(PDO::FETCH_ASSOC);
-$conteggio_attivi = count($corsi_attivi_elenco);
+try {
+    // 1. Corsi a cui lo studente È ATTUALMENTE ISCRITTO
+    // AGGIORNATO: Estrae esplicitamente 'id_corso' e il valore di 'progresso' per bloccare i moduli grafici
+    $stmt_iscritti = $pdo->prepare("
+        SELECT 
+            corsi.id AS id_corso, 
+            corsi.titolo, 
+            corsi.categoria, 
+            corsi.livello, 
+            corsi.descrizione, 
+            iscrizioni_corsi.progresso 
+        FROM iscrizioni_corsi 
+        JOIN corsi ON iscrizioni_corsi.corso_id = corsi.id 
+        WHERE iscrizioni_corsi.studente_id = :studente_id
+        ORDER BY iscrizioni_corsi.data_iscrizione DESC
+    ");
+    $stmt_iscritti->execute([':studente_id' => $studente_id]);
+    $corsi_attivi_elenco = $stmt_iscritti->fetchAll(PDO::FETCH_ASSOC);
+    $conteggio_attivi = count($corsi_attivi_elenco);
 
-// IMPAGINAZIONE CORSI ATTIVI: Max 2 corsi per blocco pagina
-$attivi_per_pagina = 2;
-$pagine_attivi = array_chunk($corsi_attivi_elenco, $attivi_per_pagina);
-$totale_pagine_attivi = count($pagine_attivi);
+    // IMPAGINAZIONE CORSI ATTIVI: Max 2 corsi per blocco pagina
+    $attivi_per_pagina = 2;
+    $pagine_attivi = array_chunk($corsi_attivi_elenco, $attivi_per_pagina);
+    $totale_pagine_attivi = count($pagine_attivi);
 
-// 2. Corsi disponibili a cui lo studente NON È ANCORA ISCRITTO
-$stmt_disponibili = $pdo->prepare("
-    SELECT * FROM corsi 
-    WHERE id NOT IN (SELECT corso_id FROM iscrizioni_corsi WHERE studente_id = :studente_id)
-    ORDER BY titolo ASC
-");
-$stmt_disponibili->execute([':studente_id' => $studente_id]);
-$corsi_disponibili_elenco = $stmt_disponibili->fetchAll(PDO::FETCH_ASSOC);
+    // 2. Corsi disponibili a cui lo studente NON È ANCORA ISCRITTO
+    $stmt_disponibili = $pdo->prepare("
+        SELECT id AS id_corso, titolo, categoria, descrizione, durata, livello FROM corsi 
+        WHERE id NOT IN (SELECT corso_id FROM iscrizioni_corsi WHERE studente_id = :studente_id)
+        ORDER BY titolo ASC
+    ");
+    $stmt_disponibili->execute([':studente_id' => $studente_id]);
+    $corsi_disponibili_elenco = $stmt_disponibili->fetchAll(PDO::FETCH_ASSOC);
 
-// IMPAGINAZIONE CORSI DISPONIBILI: Max 4 corsi per blocco pagina
-$corsi_per_pagina = 4;
-$pagine_disponibili = array_chunk($corsi_disponibili_elenco, $corsi_per_pagina);
-$totale_pagine_disponibili = count($pagine_disponibili);
+    // IMPAGINAZIONE CORSI DISPONIBILI: Max 4 corsi per blocco pagina
+    $corsi_per_pagina = 4;
+    $pagine_disponibili = array_chunk($corsi_disponibili_elenco, $corsi_per_pagina);
+    $totale_pagine_disponibili = count($pagine_disponibili);
+
+} catch (PDOException $e) {
+    die("Errore nel recupero dei dati del catalogo: " . $e->getMessage());
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="it">
@@ -137,7 +165,7 @@ $totale_pagine_disponibili = count($pagine_disponibili);
 
     <!-- BLOCCO 1: CORSI ATTIVI (MAX 2 PER PAGINA) -->
     <section class="section-block">
-        <h2 class="section-title">I tuoi corsi attuali (Clicca per abbandonare)</h2>
+        <h2 class="section-title">I tuoi corsi attuali</h2>
         
         <div class="selection-carousel-wrapper">
             <div class="selection-carousel-track" id="activeTrack">
@@ -147,22 +175,42 @@ $totale_pagine_disponibili = count($pagine_disponibili);
                         
                         <div class="selection-carousel-page">
                             <div class="courses-grid">
-                                <?php foreach ($gruppo_corsi as $corso): ?>
-                                    <article class="course-card" style="border-color: rgba(99, 102, 241, 0.2);">
+                                <?php foreach ($gruppo_corsi as $corso): 
+                                    $id_corso_univoco = isset($corso['id_corso']) ? $corso['id_corso'] : $corso['id'];
+                                    // Verifichiamo se il corso è terminato guardando il progresso estratto dal DB
+                                    $is_completato = (isset($corso['progresso']) && intval($corso['progresso']) === 100);
+                                ?>
+                                    <article class="course-card" style="border-color: <?php echo $is_completato ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.2)'; ?>;">
                                         <div class="card-body">
-                                            <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
-                                                <?php echo htmlspecialchars($corso['categoria']); ?>
-                                            </span>
+                                            <!-- Doppia etichetta se completato -->
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
+                                                    <?php echo htmlspecialchars($corso['categoria']); ?>
+                                                </span>
+                                                <?php if ($is_completato): ?>
+                                                    <span class="badge" style="background: #dcfce7; color: #15803d;">🏆 Completato</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            
                                             <h3 style="margin-top:12px;"><?php echo htmlspecialchars($corso['titolo']); ?></h3>
                                             <p class="course-description"><?php echo htmlspecialchars($corso['descrizione']); ?></p>
                                         </div>
                                         <div class="card-actions">
-                                            <a href="manage-courses.php?action=unsubscribe&corso_id=<?php echo $corso['id']; ?>" 
-                                               class="btn-course" 
-                                               style="background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5;"
-                                               onclick="return confirm('Sei sicuro di voler cancellare la tua iscrizione da questo corso? I progressi andranno persi.');">
-                                                ❌ Disiscriviti dal corso
-                                            </a>
+                                            <?php if ($is_completato): ?>
+                                                <!-- STATO BLOCCATO: Corso completato al 100%, non disiscrivibile -->
+                                                <button type="button" class="btn-course" disabled 
+                                                        style="background: #cbd5e1; color: #64748b; border: 1px solid #cbd5e1; cursor: not-allowed; box-shadow: none; text-align: center; width: 100%; display: block;">
+                                                    ✓ Frequenza Conclusa
+                                                </button>
+                                            <?php else: ?>
+                                                <!-- LINK ATTIVO: Il corso si può ancora abbandonare -->
+                                                <a href="manage-courses.php?action=unsubscribe&corso_id=<?php echo $id_corso_univoco; ?>" 
+                                                   class="btn-course" 
+                                                   style="background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5;"
+                                                   onclick="return confirm('Sei sicuro di voler cancellare la tua iscrizione da questo corso? I progressi andranno persi.');">
+                                                    ❌ Disiscriviti dal corso
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     </article>
                                 <?php endforeach; ?>
@@ -212,7 +260,7 @@ $totale_pagine_disponibili = count($pagine_disponibili);
                                             <p class="course-info" style="margin: 10px 0 0 0;">⏱️ Durata: <?php echo $corso['durata']; ?> ore | Livello: <?php echo $corso['livello']; ?></p>
                                         </div>
                                         <div class="card-actions">
-                                            <a href="manage-courses.php?action=subscribe&corso_id=<?php echo $corso['id']; ?>" 
+                                            <a href="manage-courses.php?action=subscribe&corso_id=<?php echo $corso['id_corso']; ?>" 
                                                class="btn-course btn-join" 
                                                style="text-align: center;">
                                                 ➕ Iscriviti a questo corso

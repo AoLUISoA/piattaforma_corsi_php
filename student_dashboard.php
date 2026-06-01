@@ -25,27 +25,9 @@ try {
 $studente_id = $_SESSION['utente_id'];
 $username_studente = $_SESSION['username'];
 
-/* 
-   QUERY DINAMICA: Seleziona i corsi a cui lo studente è iscritto 
-   incrociando la tabella 'iscrizioni_corsi' con la tabella 'corsi'
-*/
-try {
-    $stmt = $pdo->prepare("
-        SELECT corsi.id, corsi.titolo, corsi.categoria, corsi.livello, corsi.descrizione, iscrizioni_corsi.progresso 
-        FROM iscrizioni_corsi 
-        JOIN corsi ON iscrizioni_corsi.corso_id = corsi.id 
-        WHERE iscrizioni_corsi.studente_id = :studente_id 
-        ORDER BY iscrizioni_corsi.data_iscrizione DESC
-    ");
-    $stmt->execute([':studente_id' => $studente_id]);
-    $corsi_iscritti = $stmt->fetchAll(PDO::FETCH_ASSOC);
-	
-} catch (PDOException $e) {
-    die("Errore nel recupero dei tuoi corsi: " . $e->getMessage());
-}
+// --- AZIONE: CONFERMA LETTURA ANNUNCIO ---
 if (isset($_GET['action']) && $_GET['action'] === 'read_announcement' && isset($_GET['annuncio_id'])) {
     $annuncio_id = intval($_GET['annuncio_id']);
-    $studente_id = $_SESSION['utente_id'];
     
     try {
         $stmt_read = $pdo->prepare("INSERT IGNORE INTO annunci_letti (studente_id, annuncio_id) VALUES (:studente_id, :annuncio_id)");
@@ -59,15 +41,46 @@ if (isset($_GET['action']) && $_GET['action'] === 'read_announcement' && isset($
     }
 }
 
+try {
+    // CORRETTO: JOIN basata su corsi.docente_id = docenti.id e recupero di docenti.username
+    $stmt = $pdo->prepare("
+        SELECT 
+            corsi.id AS id_corso, 
+            corsi.titolo, 
+            corsi.categoria, 
+            corsi.livello, 
+            corsi.descrizione, 
+            iscrizioni_corsi.progresso,
+            docenti.username AS username_docente
+        FROM iscrizioni_corsi 
+        JOIN corsi ON iscrizioni_corsi.corso_id = corsi.id 
+        LEFT JOIN docenti ON corsi.docente_id = docenti.id
+        WHERE iscrizioni_corsi.studente_id = :studente_id 
+        ORDER BY iscrizioni_corsi.data_iscrizione DESC
+    ");
+    $stmt->execute([':studente_id' => $studente_id]);
+    $corsi_iscritti = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	
+} catch (PDOException $e) {
+    die("Errore nel recupero dei tuoi corsi: " . $e->getMessage());
+}
+
 // --- ESTRAZIONE DEGLI ANNUNCI NON ANCORA LETTI DALL'UTENTE ---
 try {
+    // CORRETTO: Recuperiamo anche lo username del docente che ha pubblicato l'annuncio
     $stmt_annunci = $pdo->prepare("
-        SELECT annunci.id, annunci.titolo, annunci.contenuto, annunci.data_pubblicazione, corsi.titolo AS nome_corso
+        SELECT 
+            annunci.id, 
+            annunci.titolo, 
+            annunci.contenuto, 
+            annunci.data_pubblicazione, 
+            corsi.titolo AS nome_corso,
+            docenti.username AS username_docente
         FROM annunci
         JOIN corsi ON annunci.corso_id = corsi.id
         JOIN iscrizioni_corsi ON corsi.id = iscrizioni_corsi.corso_id
+        LEFT JOIN docenti ON annunci.docente_id = docenti.id
         WHERE iscrizioni_corsi.studente_id = :studente_id
-          -- Esclude gli annunci già confermati come letti
           AND annunci.id NOT IN (
               SELECT annuncio_id FROM annunci_letti WHERE studente_id = :studente_id
           )
@@ -80,6 +93,7 @@ try {
     die("Errore nel recupero degli annunci dei docenti: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="it">
@@ -152,30 +166,49 @@ try {
         <h2 class="section-title">I miei percorsi di studio attivi</h2>
         <div class="courses-grid">
             
-            <?php if (count($corsi_iscritti) > 0): ?>
-                <?php foreach ($corsi_iscritti as $corso): ?>
+            <?php 
+            $ha_corsi_completati = false; // Controllo per abilitare il form feedback in basso
+            if (count($corsi_iscritti) > 0): 
+            ?>
+                <?php foreach ($corsi_iscritti as $corso): 
+                    if (intval($corso['progresso']) === 100) { $ha_corsi_completati = true; }
+                ?>
                     
                     <!-- CARD GENERATA IN MODO DINAMICO DAL DATABASE -->
                     <article class="course-card">
-                        <div class="card-body">
-                            <!-- Tag categoria dinamico -->
-                            <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
-                                <?php echo htmlspecialchars(str_replace('-', ' & ', ucwords($corso['categoria']))); ?>
-                            </span>
-                            <h3 style="margin-top: 12px;"><?php echo htmlspecialchars($corso['titolo']); ?></h3>
-                            <p class="course-description"><?php echo htmlspecialchars($corso['descrizione']); ?></p>
-                            
-                            <p class="course-info">Progresso attuale dello studio:</p>
-                            <!-- Barra di progresso alimentata dal valore numerico reale del DB -->
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill" style="width: <?php echo intval($corso['progresso']); ?>%;"></div>
-                            </div>
-                            <span class="progress-text"><?php echo intval($corso['progresso']); ?>% Completato</span>
-                        </div>
-                        <div class="card-actions">
-                            <a href="#" class="btn-course btn-resume">Continua corso</a>
-                        </div>
-                    </article>
+    <div class="card-body">
+        <!-- Tag categoria dinamico -->
+        <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
+            <?php echo htmlspecialchars(str_replace('-', ' & ', ucwords($corso['categoria']))); ?>
+        </span>
+		<p class="badge-tag">Docente: <?php echo htmlspecialchars($corso['username_docente'] ?? 'Non assegnato'); ?></p>
+
+		
+       
+		
+        <h3 style="margin-top: 12px;"><?php echo htmlspecialchars($corso['titolo']); ?></h3>
+        <p class="course-description"><?php echo htmlspecialchars($corso['descrizione']); ?></p>
+        
+        <p class="course-info">Progresso attuale dello studio:</p>
+        <!-- Barra di progresso alimentata dal valore numerico reale del DB -->
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: <?php echo intval($corso['progresso']); ?>%;"></div>
+        </div>
+        <span class="progress-text"><?php echo intval($corso['progresso']); ?>% Completato</span>
+    </div>
+    <div class="card-actions">
+        <?php if (intval($corso['progresso']) === 100): ?>
+            <!-- BOTTONE DISABILITATO SE IL CORSO È COMPLETATO AL 100% -->
+            <button type="button" class="btn-course" disabled 
+                    style="background: #cbd5e1; color: #64748b; border: 1px solid #cbd5e1; cursor: not-allowed; box-shadow: none; text-align: center; width: 100%; display: block;">
+                🏆 Corso Completato
+            </button>
+        <?php else: ?>
+            <!-- LINK ATTIVO SE IL CORSO È ANCORA DA FINIRE -->
+            <a href="visualizza-corso.php?corso_id=<?php echo $corso['id_corso']; ?>" class="btn-course">Continua corso</a>
+        <?php endif; ?>
+    </div>
+</article>
 
                 <?php endforeach; ?>
             <?php else: ?>
@@ -200,12 +233,14 @@ try {
             <div class="form-group">
                 <label>Seleziona il Corso da Recensire</label>
                 <select name="corso_id" required>
-                    <?php if (count($corsi_iscritti) > 0): ?>
+                    <?php if ($ha_corsi_completati): ?>
                         <?php foreach ($corsi_iscritti as $corso): ?>
-                            <option value="<?php echo $corso['id']; ?>"><?php echo htmlspecialchars($corso['titolo']); ?></option>
+                            <?php if (intval($corso['progresso']) === 100): ?>
+                                <option value="<?php echo $corso['id_corso']; ?>"><?php echo htmlspecialchars($corso['titolo']); ?></option>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <option value="">Nessun corso attivo disponibile per il feedback</option>
+                        <option value="">Nessun corso completato al 100% disponibile per il feedback</option>
                     <?php endif; ?>
                 </select>
             </div>
@@ -226,7 +261,8 @@ try {
                 <textarea name="commento" rows="4" placeholder="Scrivi qui cosa ne pensi del corso, i punti di forza e cosa miglioreresti..." required></textarea>
             </div>
 
-            <button type="submit" class="btn-submit-form" <?php echo (count($corsi_iscritti) === 0) ? 'disabled style="background:#cbd5e1; cursor:not-allowed; box-shadow:none;"' : ''; ?>>
+            <!-- Il bottone si disattiva visivamente e logicamente se non ci sono corsi completati al 100% -->
+            <button type="submit" class="btn-submit-form" <?php echo (!$ha_corsi_completati) ? 'disabled style="background:#cbd5e1; cursor:not-allowed; box-shadow:none;"' : ''; ?>>
                 Invia Feedback Ufficiale
             </button>
         </form>
@@ -238,4 +274,5 @@ try {
 </footer>
 
 </body>
+
 </html>
