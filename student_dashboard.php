@@ -181,7 +181,7 @@ try {
         <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
             <?php echo htmlspecialchars(str_replace('-', ' & ', ucwords($corso['categoria']))); ?>
         </span>
-		<p class="badge-tag">Docente: <?php echo htmlspecialchars($corso['username_docente'] ?? 'Non assegnato'); ?></p>
+		<p class="badge-tag">Docente:<strong> <?php echo htmlspecialchars($corso['username_docente'] ?? 'Non assegnato'); ?></strong></p>
 
 		
        
