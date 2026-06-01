@@ -92,6 +92,13 @@ try {
 } catch (PDOException $e) {
     die("Errore nel recupero degli annunci dei docenti: " . $e->getMessage());
 }
+
+$corsi_per_pagina = 2; 
+$pagine_attivi = array_chunk($corsi_iscritti, $corsi_per_pagina);
+$conteggio_attivi = count($corsi_iscritti);
+
+// Definiamo la variabile mancante contando quante pagine sono state create
+$totale_pagine_attivi = count($pagine_attivi);
 ?>
 
 
@@ -163,66 +170,82 @@ try {
 
     <!-- Sezione I Miei Corsi Selezionati Dinamicamente -->
     <section class="section-block">
-        <h2 class="section-title">I miei percorsi di studio attivi</h2>
-        <div class="courses-grid">
+    <div style="margin-bottom: 20px;">
+        <h2 class="section-title" style="margin: 0;">I miei percorsi di studio attivi</h2>
+    </div>
+    
+    <div class="selection-carousel-wrapper">
+        <div class="selection-carousel-track" id="activeTrack">
             
             <?php 
-            $ha_corsi_completati = false; // Controllo per abilitare il form feedback in basso
-            if (count($corsi_iscritti) > 0): 
+            $ha_corsi_completati = false; 
+            if ($conteggio_attivi > 0): 
             ?>
-                <?php foreach ($corsi_iscritti as $corso): 
-                    if (intval($corso['progresso']) === 100) { $ha_corsi_completati = true; }
-                ?>
+                <?php foreach ($pagine_attivi as $indice_pagina => $gruppo_corsi): ?>
                     
-                    <!-- CARD GENERATA IN MODO DINAMICO DAL DATABASE -->
-                    <article class="course-card">
-    <div class="card-body">
-        <!-- Tag categoria dinamico -->
-        <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
-            <?php echo htmlspecialchars(str_replace('-', ' & ', ucwords($corso['categoria']))); ?>
-        </span>
-		<p class="badge-tag">Docente:<strong> <?php echo htmlspecialchars($corso['username_docente'] ?? 'Non assegnato'); ?></strong></p>
+                    <div class="selection-carousel-page">
+                        <div class="courses-grid">
+                            <?php foreach ($gruppo_corsi as $corso): 
+                                if (intval($corso['progresso']) === 100) { 
+                                    $ha_corsi_completati = true; 
+                                }
+                            ?>
+                                
+                                <article class="course-card">
+                                    <div class="card-body">
+                                        <span class="badge tag-<?php echo strtolower(htmlspecialchars($corso['categoria'])); ?>">
+                                            <?php echo htmlspecialchars(str_replace('-', ' & ', ucwords($corso['categoria']))); ?>
+                                        </span>
+                                        <p class="badge-tag">Docente:<strong> <?php echo htmlspecialchars($corso['username_docente'] ?? 'Non assegnato'); ?></strong></p>
 
-		
-       
-		
-        <h3 style="margin-top: 12px;"><?php echo htmlspecialchars($corso['titolo']); ?></h3>
-        <p class="course-description"><?php echo htmlspecialchars($corso['descrizione']); ?></p>
-        
-        <p class="course-info">Progresso attuale dello studio:</p>
-        <!-- Barra di progresso alimentata dal valore numerico reale del DB -->
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: <?php echo intval($corso['progresso']); ?>%;"></div>
-        </div>
-        <span class="progress-text"><?php echo intval($corso['progresso']); ?>% Completato</span>
-    </div>
-    <div class="card-actions">
-        <?php if (intval($corso['progresso']) === 100): ?>
-            <!-- BOTTONE DISABILITATO SE IL CORSO È COMPLETATO AL 100% -->
-            <button type="button" class="btn-course" disabled 
-                    style="background: #cbd5e1; color: #64748b; border: 1px solid #cbd5e1; cursor: not-allowed; box-shadow: none; text-align: center; width: 100%; display: block;">
-                🏆 Corso Completato
-            </button>
-        <?php else: ?>
-            <!-- LINK ATTIVO SE IL CORSO È ANCORA DA FINIRE -->
-            <a href="visualizza-corso.php?corso_id=<?php echo $corso['id_corso']; ?>" class="btn-course">Continua corso</a>
-        <?php endif; ?>
-    </div>
-</article>
+                                        <h3 style="margin-top: 12px;"><?php echo htmlspecialchars($corso['titolo']); ?></h3>
+                                        <p class="course-description"><?php echo htmlspecialchars($corso['descrizione']); ?></p>
+                                        
+                                        <p class="course-info">Progresso attuale dello studio:</p>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill" style="width: <?php echo intval($corso['progresso']); ?>%;"></div>
+                                        </div>
+                                        <span class="progress-text"><?php echo intval($corso['progresso']); ?>% Completato</span>
+                                    </div>
+                                    <div class="card-actions">
+                                        <?php if (intval($corso['progresso']) === 100): ?>
+                                            <button type="button" class="btn-course" disabled 
+                                                    style="background: #cbd5e1; color: #64748b; border: 1px solid #cbd5e1; cursor: not-allowed; box-shadow: none; text-align: center; width: 100%; display: block;">
+                                                🏆 Corso Completato
+                                            </button>
+                                        <?php else: ?>
+                                            <a href="visualizza-corso.php?corso_id=<?php echo $corso['id_corso']; ?>" class="btn-course">Continua corso</a>
+                                        <?php endif; ?>
+                                    </div>
+                                </article>
+
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
 
                 <?php endforeach; ?>
             <?php else: ?>
-                <!-- STATO VUOTO: Viene mostrato se l'utente non ha selezionato corsi o se la lista è vuota -->
-                <div class="empty-dashboard-state" style="grid-column: span 2; text-align: center; padding: 40px 20px; background: #ffffff; border: 2px dashed #cbd5e1; border-radius: 12px; color: #64748b;">
+                <div class="empty-dashboard-state" style="text-align: center; padding: 40px 20px; background: #ffffff; border: 2px dashed #cbd5e1; border-radius: 12px; color: #64748b; width: 100%; box-sizing: border-box;">
                     <div style="font-size: 2.5rem; margin-bottom: 10px;">📚</div>
                     <h3 style="margin: 0 0 6px 0; color: #0f172a;">Nessun corso attivo</h3>
                     <p style="margin: 0 0 20px 0; font-size: 0.9rem;">Non ti sei ancora iscritto a nessun corso. Inizia subito a personalizzare il tuo catalogo.</p>
-                    <a href="selectcourse.php" class="btn-course btn-resume" style="display: inline-flex; width: auto; padding: 10px 24px;">Scegli i tuoi corsi ora</a>
+                    <a href="selectcourse.php" class="btn-course btn-resume" style="display: inline-flex; width: auto; padding: 10px 24px; text-decoration: none;">Scegli i tuoi corsi ora</a>
                 </div>
             <?php endif; ?>
             
         </div>
-    </section>
+    </div>
+
+   <?php if ($totale_pagine_attivi > 1): ?>
+        <div class="selection-carousel-dots" id="activeDots" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 25px;">
+            <?php for ($i = 0; $i < $totale_pagine_attivi; $i++): ?>
+                <span class="select-dot <?php echo $i === 0 ? 'active' : ''; ?>" data-page="<?php echo $i; ?>"></span>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
+</section>
+
+
 
     <!-- Sezione Lascia un Feedback Dinamico -->
     <section class="feedback-section">
@@ -255,6 +278,8 @@ try {
                     <option value="1">⭐ 1 - Scarso</option>
                 </select>
             </div>
+			
+			
 
             <div class="form-group">
                 <label>Inserisci un tuo commento personale</label>
@@ -272,7 +297,31 @@ try {
 <footer>
     <p>&copy; 2026 Learnify. Tutti i diritti riservati.</p>
 </footer>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const track = document.getElementById("activeTrack");
+    const dots = document.querySelectorAll("#activeDots .select-dot");
+    
+    if (!track || dots.length === 0) return;
 
+    function updateCarousel(pageIndex) {
+        // Sposta il carosello del 100% per ogni pagina
+        track.style.transform = `translateX(-${pageIndex * 100}%)`;
+        
+        // Rimuove la classe attiva da tutti e la assegna al pallino corrente
+        dots.forEach(dot => dot.classList.remove("active"));
+        dots[pageIndex].classList.add("active");
+    }
+
+    // Associa l'evento click a ogni pallino
+    dots.forEach(dot => {
+        dot.addEventListener("click", function() {
+            const pageIndex = parseInt(this.getAttribute("data-page"));
+            updateCarousel(pageIndex);
+        });
+    });
+});
+</script>
 </body>
 
 </html>
