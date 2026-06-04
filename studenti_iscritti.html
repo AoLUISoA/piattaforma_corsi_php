@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studenti Iscritti - Piattaforma Corsi</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- lo stile non funzionava del foglio stile, ho dovuto forzarlo qua-->
+    <style>
+        .stats-bar {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 20px;
+            height: 24px;
+            width: 150px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #27ae60;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .btn-remove {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-remove:hover {
+            background: #c0392b;
+        }
+        .loading, .no-students {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="pageTitle">Studenti Iscritti</h1>
+        <a href="home_docente.html" class="back-btn">← Torna ai corsi</a>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="stats-bar">
+                <span id="statsText">📊 Caricamento in corso...</span>
+                <button class="refresh-btn" onclick="caricaStudenti()">🔄 Aggiorna</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="studentiTable">
+                    <thead>
+                        <tr><th>Username</th><th>Email</th><th>Progresso</th><th>Azioni</th></tr>
+                    </thead>
+                    <tbody id="studentiBody">
+                        <tr><td colspan="4" class="loading">⏳ Caricamento in corso...<\/td><\/tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentUser = null;
+        let corsoId = null;
+
+        async function loadUser() {
+            currentUser = await requireAuth('docente');
+            if (!currentUser) return false;
+            return true;
+        }
+
+        function getParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            corsoId = parseInt(urlParams.get('corsoId'));
+            const titolo = urlParams.get('titolo') || 'Corso';
+            document.getElementById('pageTitle').textContent = `👥 Studenti iscritti a: ${decodeURIComponent(titolo)}`;
+        }
+
+        async function caricaStudenti() {
+            const tbody = document.getElementById('studentiBody');
+            const statsSpan = document.getElementById('statsText');
+            
+            try {
+                tbody.innerHTML = '<tr><td colspan="4" class="loading"> Caricamento...</td></tr>';
+                statsSpan.innerHTML = '📊 Caricamento...';
+                
+                const studenti = await getStudentiIscrittiAlCorso(corsoId);
+                
+                if (!studenti || studenti.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="no-students"> Nessuno studente iscritto a questo corso 📭</td></tr>';
+                    statsSpan.innerHTML = '📊 0 studenti iscritti';
+                    return;
+                }
+                
+                const completati = studenti.filter(s => (s.avanzamento || 0) >= 100).length;
+                const media = studenti.reduce((sum, s) => sum + (s.avanzamento || 0), 0) / studenti.length;
+                statsSpan.innerHTML = `📊 <strong>${studenti.length}</strong> studenti iscritti | ✅ ${completati} completati | 📈 Media: ${Math.round(media)}%`;
+                
+                tbody.innerHTML = studenti.map(s => {
+                    const percentuale = Math.min(100, Math.max(0, Math.round(s.avanzamento || 0)));
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(s.username)}</strong></td>
+                            <td><a href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-fill" style="width: ${percentuale}%;">${percentuale}%</div>
+                                </div>
+                            </td>
+                            <td><button class="btn-remove" onclick="rimuoviStudente(${s.id}, '${escapeHtml(s.username)}')"> Rimuovi 🗑️</button></td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Errore:', error);
+                tbody.innerHTML = `<tr><td colspan="4" class="error">Errore: ${error.message}</td></tr>`;
+                statsSpan.innerHTML = 'Errore nel caricamento';
+            }
+        }
+
+        async function rimuoviStudente(idUtente, username) {
+            if (!confirm(`Rimuovere lo studente "${username}" da questo corso?`)) return;
+            try {
+                const result = await rimuoviIscrizione(idUtente, corsoId);
+                if (result && result.success) {
+                    alert(` Studente "${username}" rimosso con successo.`);
+                    await caricaStudenti();
+                    if (window.opener && typeof window.opener.aggiornaConteggioCorso === 'function') {
+                        window.opener.aggiornaConteggioCorso(corsoId);
+                    }
+                } else {
+                    alert(' Errore durante la rimozione');
+                }
+            } catch (error) {
+                alert(' Errore: ' + error.message);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function init() {
+            const ok = await loadUser();
+            if (!ok) return;
+            getParam();
+            await caricaStudenti();
+        }
+
+        init();
+    </script>
+</body>
+</html>

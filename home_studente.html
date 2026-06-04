@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Studente - Piattaforma Corsi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Piattaforma Corsi Online ✎</h1>
+        </div>
+        <div class="user-info">
+            <span class="username" id="userName"></span>
+            <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+        </div>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Cerca corsi per titolo o descrizione..." onkeyup="filterCorsi()">
+        <select id="difficoltaFilter" onchange="filterCorsi()">
+            <option value="">Tutte le difficolta'</option>
+            <option value="base">Base</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzato">Avanzato</option>
+        </select>
+        <button class="btn" onclick="filterCorsi()">Cerca</button>
+    </div>
+
+    <div class="container">
+        <h2>Catalogo Corsi 📖</h2>
+        <div id="corsiGrid" class="corsi-grid">
+            <p class="text-center">Caricamento in corso...</p>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentUser = null;
+        let allCorsi = [];
+        let corsiIscrittiIds = new Set(); // Set con gli ID dei corsi a cui è iscritto
+
+        async function loadUser() {
+            currentUser = await requireAuth('studente');
+            if (currentUser) {
+                document.getElementById('userName').textContent = `👤 ${currentUser.username}`;
+            }
+            return currentUser;
+        }
+
+        // controllo db, prende tutti i corsi a cui l'utente è iscritto
+        async function caricaStatiIscrizione() {
+            const ids = await getStatiIscrizione(currentUser.id);
+            corsiIscrittiIds = new Set(ids);
+            console.log("Corsi a cui sei iscritto:", Array.from(corsiIscrittiIds));
+        }
+
+        async function renderCorsi() {
+            const grid = document.getElementById('corsiGrid');
+            
+            if (!currentUser) {
+                grid.innerHTML = '<p class="text-center">Caricamento utente...</p>';
+                return;
+            }
+            
+            if (allCorsi.length === 0) {
+                grid.innerHTML = '<p class="text-center">Nessun corso disponibile al momento.</p>';
+                return;
+            }
+            
+            // Usa il Set per sapere subito se è iscritto
+            grid.innerHTML = allCorsi.map(corso => {
+                const isIscritto = corsiIscrittiIds.has(corso.id);
+                
+                return `
+                    <div class="corso-card" data-corso-id="${corso.id}">
+                        <div class="corso-header">
+                            <h3>${corso.titolo}</h3>
+                        </div>
+                        <span class="difficolta ${corso.difficolta}">${corso.difficolta}</span>
+                        <p>${(corso.descrizione || '').substring(0, 120)}${(corso.descrizione || '').length > 120 ? '...' : ''}</p>
+                        <p><small>Docente ID: ${corso.docente_id}</small></p>
+                        
+                        <div class="progress-section" style="padding:15px; margin-top:15px; display: ${isIscritto ? 'block' : 'none'};" id="progress-${corso.id}">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill-${corso.id}" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <button id="btn-${corso.id}" 
+                                class="btn corso-btn" 
+                                data-id="${corso.id}"
+                                data-iscritto="${isIscritto}"
+                                style="background-color: ${isIscritto ? '#27ae60' : '#667eea'}; width: 100%;">
+                                ${isIscritto ? 'Visualizza corso 📖' : 'Iscriviti al corso ➕'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Carica gli avanzamenti per i corsi già iscritti
+            for (const corsoId of corsiIscrittiIds) {
+                const avanzamento = await getAvanzamento(currentUser.id, corsoId);
+                const progressFill = document.getElementById(`progress-fill-${corsoId}`);
+                if (progressFill) {
+                    progressFill.style.width = `${avanzamento}%`;
+                    progressFill.textContent = `${avanzamento}%`;
+                }
+            }
+            
+            // Attacca event listener
+            document.querySelectorAll('.corso-btn').forEach(btn => {
+                btn.removeEventListener('click', gestoreClick);
+                btn.addEventListener('click', gestoreClick);
+            });
+        }
+
+        async function gestoreClick(event) {
+            const btn = event.currentTarget;
+            const corsoId = parseInt(btn.dataset.id);
+            const isIscritto = btn.dataset.iscritto === 'true';
+            
+            if (isIscritto) {
+                window.location.href = `corso_dettaglio.html?id=${corsoId}`;
+            } else {
+                await iscrivitiAlCorso(corsoId, btn);
+            }
+        }
+
+        async function iscrivitiAlCorso(corsoId, btnElement) {
+            if (!currentUser) {
+                alert("Devi essere loggato!");
+                return;
+            }
+            
+            btnElement.disabled = true;
+            btnElement.textContent = "Elaborazione...";
+            
+            const result = await iscriviStudente(currentUser.id, corsoId);
+            
+            if (result && result.success === true) {
+                alert('Iscrizione completata con successo!');
+                
+                // Aggiorna la cache locale
+                corsiIscrittiIds.add(corsoId);
+                
+                // Aggiorna il bottone
+                btnElement.dataset.iscritto = "true";
+                btnElement.textContent = "Visualizza corso 📖";
+                btnElement.style.backgroundColor = "#27ae60";
+                btnElement.disabled = false;
+                
+                // Mostra la barra di progresso
+                const progressDiv = document.getElementById(`progress-${corsoId}`);
+                if (progressDiv) {
+                    progressDiv.style.display = 'block';
+                }
+                
+                // Inizializza avanzamento a 0
+                const progressFill = document.getElementById(`progress-fill-${corsoId}`);
+                if (progressFill) {
+                    progressFill.style.width = '0%';
+                    progressFill.textContent = '0%';
+                }
+            } 
+            else if (result && result.already_iscritto === true) {
+                alert('Sei già iscritto a questo corso!');
+                
+                // Aggiorna cache e bottone
+                corsiIscrittiIds.add(corsoId);
+                btnElement.dataset.iscritto = "true";
+                btnElement.textContent = "Visualizza corso 📖";
+                btnElement.style.backgroundColor = "#27ae60";
+                btnElement.disabled = false;
+                
+                const progressDiv = document.getElementById(`progress-${corsoId}`);
+                if (progressDiv) {
+                    progressDiv.style.display = 'block';
+                }
+            }
+            else {
+                alert('Errore durante l\'iscrizione: ' + (result.error || 'Riprova'));
+                btnElement.textContent = "Iscriviti al corso ➕";
+                btnElement.disabled = false;
+            }
+        }
+
+        async function loadCorsi() {
+            const corsi = await getAllCorsi();
+            allCorsi = [...corsi];
+            await renderCorsi();
+        }
+
+        async function filterCorsi() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const difficolta = document.getElementById('difficoltaFilter').value;
+            
+            const corsiFiltrati = allCorsi.filter(corso => {
+                const matchSearch = (corso.titolo || '').toLowerCase().includes(searchTerm) ||
+                                   (corso.descrizione || '').toLowerCase().includes(searchTerm);
+                const matchDifficolta = !difficolta || corso.difficolta === difficolta;
+                return matchSearch && matchDifficolta;
+            });
+            
+            const grid = document.getElementById('corsiGrid');
+            
+            if (corsiFiltrati.length === 0) {
+                grid.innerHTML = '<p class="text-center">Nessun corso corrisponde alla ricerca.</p>';
+                return;
+            }
+            
+            grid.innerHTML = corsiFiltrati.map(corso => {
+                const isIscritto = corsiIscrittiIds.has(corso.id);
+                
+                return `
+                    <div class="corso-card" data-corso-id="${corso.id}">
+                        <div class="corso-header">
+                            <h3>${corso.titolo}</h3>
+                        </div>
+                        <span class="difficolta ${corso.difficolta}">${corso.difficolta}</span>
+                        <p>${(corso.descrizione || '').substring(0, 120)}${(corso.descrizione || '').length > 120 ? '...' : ''}</p>
+                        <p><small>Docente ID: ${corso.docente_id}</small></p>
+                        
+                        <div class="progress-section" style="padding:15px; margin-top:15px; display: ${isIscritto ? 'block' : 'none'};" id="progress-${corso.id}">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill-${corso.id}" style="width: ${isIscritto ? '0%' : '0%'}">0%</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <button id="btn-${corso.id}" 
+                                class="btn corso-btn" 
+                                data-id="${corso.id}"
+                                data-iscritto="${isIscritto}"
+                                style="background-color: ${isIscritto ? '#27ae60' : '#667eea'}; width: 100%;">
+                                ${isIscritto ? 'Visualizza corso 📖' : 'Iscriviti al corso ➕'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Riattacca event listener
+            document.querySelectorAll('.corso-btn').forEach(btn => {
+                btn.removeEventListener('click', gestoreClick);
+                btn.addEventListener('click', gestoreClick);
+            });
+        }
+
+        async function init() {
+            await loadUser();
+            await caricaStatiIscrizione();  // UNICO CONTROLLO SUL DB
+            await loadCorsi();               // CARICA CORSI E RENDERIZZA
+        }
+        
+        init();
+    </script>
+</body>
+</html>

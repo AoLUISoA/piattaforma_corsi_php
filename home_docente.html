@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Docente - Piattaforma Corsi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>👨‍🏫 Area Docente</h1>
+        </div>
+        <div class="user-info">
+            <span class="username" id="userName"></span>
+            <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="actions-bar">
+            <button class="btn btn-primary" onclick="openModal()">Crea Nuovo Corso ➕</button>
+        </div>
+        <h2>I Miei Corsi 📚</h2>
+        <div id="corsiList" class="corsi-list">
+            <p class="text-center">Caricamento in corso...</p>
+        </div>
+    </div>
+
+    <div id="corsoModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Crea Nuovo Corso</h3>
+            <input type="hidden" id="corsoId">
+            <div class="form-group">
+                <input type="text" id="corsoTitolo" placeholder="Titolo del corso" required>
+            </div>
+            <div class="form-group">
+                <textarea id="corsoDescrizione" placeholder="Descrizione del corso" required></textarea>
+            </div>
+            <div class="form-group">
+                <select id="corsoDifficolta">
+                    <option value="base">Base</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzato">Avanzato</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <textarea id="corsoContenuto" placeholder="Contenuto del corso (lezione per lezione)"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="salvaCorso()">Salva</button>
+                <button class="btn btn-danger" onclick="closeModal()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentUser = null;
+
+        async function loadUser() {
+            currentUser = await requireAuth('docente');
+            if (currentUser) {
+                document.getElementById('userName').textContent = '👨‍🏫 ' + currentUser.username;
+            }
+            return currentUser;
+        }
+
+        async function renderCorsi() {
+            const container = document.getElementById('corsiList');
+            if (!currentUser) {
+                container.innerHTML = '<p class="text-center">Caricamento...</p>';
+                return;
+            }
+
+            const mieiCorsi = await getCorsiByDocente(currentUser.id);
+            
+            if (!mieiCorsi || mieiCorsi.length === 0) {
+                container.innerHTML = '<p class="text-center">Non hai ancora creato nessun corso. Clicca su "Crea Nuovo Corso" per iniziare!</p>';
+                return;
+            }
+
+            container.innerHTML = mieiCorsi.map(corso => `
+                <div class="corso-card">
+                    <div class="corso-header">
+                        <h3>${corso.titolo}</h3>
+                        <div class="corso-actions">
+                            <button class="btn btn-small btn-edit" onclick="modificaCorso(${corso.id})">Modifica ✏️</button>
+                            <button class="btn btn-small btn-delete" onclick="eliminaCorso(${corso.id})">Elimina 🗑️</button>
+                            <button class="btn btn-small btn-students" onclick="visualizzaStudenti(${corso.id}, '${corso.titolo.replace(/'/g, "\\'")}')">Studenti 👥</button>
+                        </div>
+                    </div>
+                    <span class="difficolta ${corso.difficolta}">${corso.difficolta}</span>
+                    <p class="corso-descrizione">${corso.descrizione}</p>
+                    <div class="corso-stats" style="margin-top:15px; padding-top:15px; border-top:1px solid #eee;">
+                        <span>📊 <span id="studenti-count-${corso.id}">${corso.num_studenti || 0}</span> studenti iscritti</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.aggiornaConteggioCorso = async function(corsoId) {
+            const mieiCorsi = await getCorsiByDocente(currentUser.id);
+            const corso = mieiCorsi.find(c => c.id == corsoId);
+            if (corso) {
+                const span = document.getElementById(`studenti-count-${corsoId}`);
+                if (span) span.textContent = corso.num_studenti || 0;
+            }
+        };
+
+        async function eliminaCorso(corsoId) {
+            if (confirm('Sei sicuro di voler eliminare questo corso? Tutti i progressi degli studenti andranno persi.')) {
+                const result = await deleteCorso(corsoId, currentUser.id);
+                if (result.success) {
+                    await renderCorsi();
+                } else {
+                    alert('Errore durante l\'eliminazione');
+                }
+            }
+        }
+
+        async function modificaCorso(corsoId) {
+            const corso = await getCorsoById(corsoId);
+            if (corso) {
+                document.getElementById('modalTitle').textContent = 'Modifica Corso';
+                document.getElementById('corsoId').value = corso.id;
+                document.getElementById('corsoTitolo').value = corso.titolo;
+                document.getElementById('corsoDescrizione').value = corso.descrizione;
+                document.getElementById('corsoDifficolta').value = corso.difficolta;
+                document.getElementById('corsoContenuto').value = corso.contenuto || '';
+                document.getElementById('corsoModal').style.display = 'flex';
+            } else {
+                alert('Corso non trovato');
+            }
+        }
+
+        async function salvaCorso() {
+            const id = document.getElementById('corsoId').value;
+            const titolo = document.getElementById('corsoTitolo').value;
+            const descrizione = document.getElementById('corsoDescrizione').value;
+            const difficolta = document.getElementById('corsoDifficolta').value;
+            const contenuto = document.getElementById('corsoContenuto').value;
+
+            if (!titolo || !descrizione) {
+                alert('Compila tutti i campi obbligatori');
+                return;
+            }
+
+            let result;
+            if (id) {
+                result = await updateCorso(parseInt(id), titolo, descrizione, difficolta, contenuto);
+            } else {
+                result = await createCorso(titolo, descrizione, currentUser.id, difficolta, contenuto);
+            }
+
+            if (result && result.success) {
+                closeModal();
+                await renderCorsi();
+                alert('Corso salvato con successo!');
+            } else {
+                alert('Errore durante il salvataggio: ' + (result?.error || 'Riprova'));
+            }
+        }
+
+        function visualizzaStudenti(corsoId, corsoTitolo) {
+            window.location.href = `studenti_iscritti.html?corsoId=${corsoId}&titolo=${encodeURIComponent(corsoTitolo)}`;
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Crea Nuovo Corso';
+            document.getElementById('corsoId').value = '';
+            document.getElementById('corsoTitolo').value = '';
+            document.getElementById('corsoDescrizione').value = '';
+            document.getElementById('corsoDifficolta').value = 'base';
+            document.getElementById('corsoContenuto').value = '';
+            document.getElementById('corsoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('corsoModal').style.display = 'none';
+        }
+
+        async function init() {
+            await loadUser();
+            await renderCorsi();
+        }
+
+        init();
+    </script>
+</body>
+</html>

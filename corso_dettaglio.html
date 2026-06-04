@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Corso - Piattaforma Corsi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1 id="corsoTitolo">Dettaglio Corso</h1>
+        <a href="home_studente.html" class="back-btn">← Torna ai corsi</a>
+    </header>
+
+    <div class="container">
+        <div class="card" id="corsoInfo"></div>
+        
+        <div class="progress-section">
+            <h3> Il tuo progresso 📊</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <button class="btn btn-primary" id="btnCompletaLezione" onclick="aggiornaProgresso()"> Segna lezione come completata (+10%) ✅</button>
+        </div>
+
+        <div class="card" id="contenutoCorso">
+            <h3> Contenuto del corso 📖</h3>
+            <div id="contenutoTesto"></div>
+        </div>
+
+        <div class="card">
+            <h3> Lascia un feedback ✍️</h3>
+            <div class="stars" id="stars">
+                <span class="star" data-voto="1">★</span>
+                <span class="star" data-voto="2">★</span>
+                <span class="star" data-voto="3">★</span>
+                <span class="star" data-voto="4">★</span>
+                <span class="star" data-voto="5">★</span>
+            </div>
+            <div class="form-group">
+                <textarea id="commento" rows="3" placeholder="Il tuo commento..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="inviaFeedback()">Invia Feedback</button>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentUser = null;
+        let corsoId = null;
+        let corso = null;
+        let avanzamentoCorrente = 0;
+        let votoSelezionato = 0;
+
+        async function loadUser() {
+            currentUser = await requireAuth('studente');
+        }
+
+        function getParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            corsoId = parseInt(urlParams.get('id'));
+        }
+
+        async function aggiornaProgresso() {
+            if (avanzamentoCorrente >= 100) {
+                alert('Hai già completato il corso! 🎉');
+                return;
+            }
+            
+            let nuovoAvanzamento = Math.min(avanzamentoCorrente + 10, 100);
+            const result = await aggiornaAvanzamento(currentUser.id, corsoId, nuovoAvanzamento);
+            
+            if (result.success) {
+                avanzamentoCorrente = nuovoAvanzamento;
+                aggiornaUIProgresso();
+                
+                if (avanzamentoCorrente >= 100) {
+                    alert('🎉 Complimenti! Hai completato il corso!');
+                    document.getElementById('btnCompletaLezione').disabled = true;
+                }
+            } else {
+                alert('Errore durante l\'aggiornamento del progresso');
+            }
+        }
+
+        function aggiornaUIProgresso() {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${avanzamentoCorrente}%`;
+            progressFill.textContent = `${avanzamentoCorrente}%`;
+        }
+
+        async function caricaCorso() {
+            corso = await getCorsoById(corsoId);
+            
+            if (!corso) {
+                document.querySelector('.container').innerHTML = '<p class="text-center">Corso non trovato</p>';
+                return;
+            }
+            
+            document.getElementById('corsoTitolo').textContent = corso.titolo;
+            
+            document.getElementById('corsoInfo').innerHTML = `
+                <h2>${corso.titolo}</h2>
+                <span class="difficolta ${corso.difficolta}">${corso.difficolta}</span>
+                <p style="margin-top:15px;">${corso.descrizione}</p>
+                <p><small>👨‍🏫 Docente ID: ${corso.docente_id}</small></p>
+            `;
+            
+            document.getElementById('contenutoTesto').innerHTML = (corso.contenuto || 'Nessun contenuto caricato dal docente.').replace(/\n/g, '<br>');
+            
+            avanzamentoCorrente = await getAvanzamento(currentUser.id, corsoId);
+            aggiornaUIProgresso();
+            
+            if (avanzamentoCorrente >= 100) {
+                document.getElementById('btnCompletaLezione').disabled = true;
+            }
+        }
+
+        function setupStars() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    votoSelezionato = parseInt(star.dataset.voto);
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.voto) <= votoSelezionato) {
+                            s.classList.add('selected');
+                        } else {
+                            s.classList.remove('selected');
+                        }
+                    });
+                });
+            });
+        }
+
+        async function inviaFeedback() {
+            if (votoSelezionato === 0) {
+                alert('Seleziona un voto da 1 a 5 stelle');
+                return;
+            }
+            
+            const commento = document.getElementById('commento').value;
+            const result = await addFeedback(currentUser.id, corsoId, votoSelezionato, commento);
+            
+            if (result.success) {
+                alert('Grazie per il tuo feedback!');
+                
+                // reset del form
+                votoSelezionato = 0;
+                document.querySelectorAll('.star').forEach(s => s.classList.remove('selected'));
+                document.getElementById('commento').value = '';
+            } else {
+                alert('Errore durante l\'invio del feedback');
+            }
+        }
+
+        loadUser();
+        getParam();
+        caricaCorso();
+        setupStars();
+    </script>
+</body>
+</html>

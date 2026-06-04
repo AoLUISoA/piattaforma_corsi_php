@@ -3,347 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piattaforma Corsi Online - Home</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="indexstyle.css">
+    <title>Piattaforma Corsi Online - Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="video-bg-container">
-    <!-- Maschera opaca protettiva per i testi -->
-    <div class="video-overlay-mask"></div>
-    
-    <!-- Tag video con i 4 parametri di sicurezza obbligatori per i browser -->
-    <video autoplay muted loop playsinline preload="auto">
-        <source src="images/3253.mp4" type="video/mp4">
-    </video>
-</div>
-
-<header>
-    <div class="logo-wrapper">
-    <!-- LOGO SVG PERFETTAMENTE BILANCIATO E CENTRATO -->
-    <svg class="brand-logo" viewBox="0 0 430 120" xmlns="http://w3.org">
-        <defs>
-            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#818cf8" />
-                <stop offset="100%" stop-color="#6366f1" />
-            </linearGradient>
-        </defs>
-        <!-- Icona del Logo -->
-        <g transform="translate(10, 10)">
-            <path d="M20 55 L55 35 L90 55 L55 75 Z" fill="url(#logoGrad)" />
-            <path d="M55 75 L55 95 M55 75 C65 80, 75 80, 85 73 L85 53" fill="none" stroke="url(#logoGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M35 65 L35 85 C35 95, 75 95, 75 85 L75 65" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
-            <circle cx="85" cy="73" r="5" fill="#818cf8" />
-        </g>
-        <!-- Testo del Brand -->
-        <text x="125" y="95" font-family="'Inter', sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-2">Learn<tspan fill="#818cf8">ify</tspan></text>
-    </svg>
-</div>
-    <div class="header-content">
-        <span class="badge">🚀 Investi nel tuo futuro</span>
-        <h1>Piattaforma Corsi Online</h1>
-        <p class="hero-subtitle">Impara le competenze più richieste sul mercato dai migliori esperti del settore, dove e quando vuoi.</p>
-        <div class="cta-group">
-            <a href="login.php" class="btn btn-primary">Accedi</a>
-            <a href="register.php" class="btn btn-secondary">Inizia Gratis</a>
-        </div>
-    </div>
-</header>
-
-<!-- Sezione Statistiche (Box Ristretto) -->
-<div class="container container-compact">
-    <div class="stats-grid">
-        <div class="stat-item">
-            <span class="stat-number" data-target="15000">0</span>
-            <span class="stat-label">Studenti Attivi</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number" data-target="120">0</span>
-            <span class="stat-label">Corsi d'Autore</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number" data-target="94">0</span>
-            <span class="stat-label">Tasso di Successo %</span>
-        </div>
-    </div>
-</div>
-
-<!-- Sezione Carosello Corsi (Box Ristretto e Rivoluzionato) -->
-<div class="carousel-section-container carousel-compact">
-    <div class="section-header">
-        <h2>Esplora i Corsi in Evidenza</h2>
-        <p>Dai un'occhiata alle ultime novità disponibili sulla piattaforma.</p>
+    <div class="form-container">
+        <h1 class="text-center">Piattaforma Corsi Online ✎</h1>
         
-        <!-- FUNZIONALITÀ EXTRA: Barra di ricerca dinamica -->
-        <div class="search-box-container">
-            <input type="text" id="courseSearch" placeholder="🔍 Cerca un corso o una categoria (es. Tech)...">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Accedi</button>
+            <button class="tab-btn" onclick="switchTab('register')">Registrati</button>
         </div>
-    </div>
 
-    <div class="carousel-container" id="mainCarousel">
-        <!-- Controlli Freccia di Navigazione -->
-        <button class="carousel-btn prev-btn" id="prevBtn">&#10094;</button>
-        <button class="carousel-btn next-btn" id="nextBtn">&#10095;</button>
-
-        <div class="carousel-wrapper">
-            <div class="carousel-track" id="carouselTrack">
-                
-                <!-- PAGINA 1 -->
-                <div class="carousel-page">
-                    <div class="course-card" data-title="sviluppo web completo" data-category="tech">
-                        <div class="course-tag tag-tech">Tech</div>
-                        <h3>Sviluppo Web Completo</h3>
-                        <p>Impara HTML, CSS, JavaScript e React da zero con progetti reali.</p>
-                        <div class="course-footer">
-                            <span>42 ore</span>
-                            <span class="price">Gratis</span>
-                        </div>
-                    </div>
-                    <div class="course-card" data-title="digital marketing 360" data-category="business">
-                        <div class="course-tag tag-business">Business</div>
-                        <h3>Digital Marketing 360°</h3>
-                        <p>Domina i canali social, la SEO e le campagne ADV per far crescere il tuo brand.</p>
-                        <div class="course-footer">
-                            <span>28 ore</span>
-                            <span class="price">Premium</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAGINA 2 -->
-                <div class="carousel-page">
-                    <div class="course-card" data-title="ui ux design masterclass" data-category="design">
-                        <div class="course-tag tag-design">Design</div>
-                        <h3>UI/UX Design Masterclass</h3>
-                        <p>Progetta interfacce mozzafiato ed esperienze utente memorabili con Figma.</p>
-                        <div class="course-footer">
-                            <span>35 ore</span>
-                            <span class="price">Premium</span>
-                        </div>
-                    </div>
-                    <div class="course-card" data-title="python per la data science" data-category="tech">
-                        <div class="course-tag tag-tech">Tech</div>
-                        <h3>Python per la Data Science</h3>
-                        <p>Analizza dati, crea grafici statistici e scopri le basi del Machine Learning.</p>
-                        <div class="course-footer">
-                            <span>50 ore</span>
-                            <span class="price">Gratis</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAGINA 3 -->
-                <div class="carousel-page">
-                    <div class="course-card" data-title="avviare un attivita freelance" data-category="business">
-                        <div class="course-tag tag-business">Business</div>
-                        <h3>Avviare un'Attività Freelance</h3>
-                        <p>Trova clienti, gestisci le finanze personali e fai scalare il tuo business.</p>
-                        <div class="course-footer">
-                            <span>18 ore</span>
-                            <span class="price">Premium</span>
-                        </div>
-                    </div>
-                    <div class="course-card" data-title="montaggio video con premiere" data-category="design">
-                        <div class="course-tag tag-design">Design</div>
-                        <h3>Montaggio Video con Premiere</h3>
-                        <p>Crea video professionali per YouTube, TikTok e brand aziendali.</p>
-                        <div class="course-footer">
-                            <span>22 ore</span>
-                            <span class="price">Gratis</span>
-                        </div>
-                    </div>
-                </div>
-
+        <!-- form del login -->
+        <div id="loginTab" class="tab-content active">
+            <div class="form-group">
+                <input type="text" id="loginUsername" placeholder="Username" required>
             </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Password" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="loginIsDocente">
+                <label>Accedi come Docente</label>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="handleLogin()">Accedi</button>
+            <div id="loginMessage" class="message"></div>
         </div>
 
-        <!-- Puntini di Navigazione -->
-        <div class="carousel-dots" id="carouselDots">
-            <span class="dot active" data-page="0"></span>
-            <span class="dot" data-page="1"></span>
-            <span class="dot" data-page="2"></span>
+        <!-- registrazione form -->
+        <div id="registerTab" class="tab-content">
+            <div class="form-group">
+                <input type="text" id="regUsername" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="regPassword" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="regEmail" placeholder="Email" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="regIsDocente">
+                <label>Registrati come Docente</label>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="handleRegister()">Registrati</button>
+            <div id="registerMessage" class="message"></div>
         </div>
     </div>
-</div>
 
-<!-- Il div esterno prende il 100% della larghezza e applica lo sfondo bianco pieno -->
-<div class="footer-wrapper" style="width: 100%; margin-top: 40px; background-color: #ffffff !important; border-top: 1px solid #e2e8f0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); box-sizing: border-box !important;">
-  
-  <!-- Il container interno mantiene i testi e i link allineati alla griglia centrale del sito -->
-  <div class="footer-container" style="max-width: 1200px; margin: 0 auto; padding: 0 15px; box-sizing: border-box !important;">
-    
-    <!-- Rimosso border-top e my-4 da qui, gestiti ora dal div esterno -->
-    <footer class="d-flex flex-wrap justify-content-between align-items-center" 
-            style="padding: 20px 0 !important; box-sizing: border-box !important; line-height: 1 !important;"> 
-        
-        <!-- Testo Copyright (Sostituito colore sbiadito con il tuo grigio leggibile) -->
-        <p class="col-md-4 mb-0" style="color: #475569 !important; font-size: 14px; margin: 0;">© 2026 Company, Inc</p> 
-        
-        <!-- Logo Centrale (Sostituito colore sbiadito con il tuo scuro di brand) -->
-        <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none" 
-           aria-label="Bootstrap" style="color: #0f172a !important;"> 
-            <svg class="bi" width="40" height="32" aria-hidden="true" style="fill: currentColor;">
-                <use xlink:href="#bootstrap"></use>
-            </svg> 
-        </a> 
-
-        <!-- Menu di Navigazione Destra -->
-        <ul class="nav col-md-4 justify-content-end mb-0" style="margin: 0; padding: 0; gap: 5px;"> 
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2" style="color: #475569 !important; font-size: 14px; font-weight: 500;">Home</a>
-            </li> 
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2" style="color: #475569 !important; font-size: 14px; font-weight: 500;">Features</a>
-            </li> 
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2" style="color: #475569 !important; font-size: 14px; font-weight: 500;">Pricing</a>
-            </li> 
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2" style="color: #475569 !important; font-size: 14px; font-weight: 500;">FAQs</a>
-            </li> 
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2" style="color: #475569 !important; font-size: 14px; font-weight: 500;">About</a>
-            </li> 
-        </ul> 
-    </footer> 
-
-  </div>
-</div>
-
-<!-- SCRIPT LOGICO EVOLUTO -->
-<script>
-    const track = document.getElementById('carouselTrack');
-const dots = document.querySelectorAll('.dot');
-const nextBtn = document.getElementById('nextBtn');
-const prevBtn = document.getElementById('prevBtn');
-const carouselContainer = document.getElementById('mainCarousel');
-const searchInput = document.getElementById('courseSearch');
-const cards = document.querySelectorAll('.course-card');
-
-let currentPage = 0;
-const totalPages = dots.length;
-let autoplayTimer;
-
-// Funzione principale per spostare il carosello
-function updateCarousel(pageIndex) {
-    const firstPage = track.querySelector('.carousel-page');
-    if (!firstPage) return;
-    
-    const pageWidth = firstPage.getBoundingClientRect().width;
-    track.style.transform = `translateX(-${pageIndex * pageWidth}px)`;
-    
-    dots.forEach(dot => dot.classList.remove('active'));
-    if (dots[pageIndex]) dots[pageIndex].classList.add('active');
-    
-    currentPage = pageIndex;
-}
-
-// Navigazione manuale con freccia avanti
-nextBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    let next = currentPage + 1;
-    if (next >= totalPages) next = 0;
-    updateCarousel(next);
-});
-
-// Navigazione manuale con freccia indietro
-prevBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    let prev = currentPage - 1;
-    if (prev < 0) prev = totalPages - 1;
-    updateCarousel(prev);
-});
-
-// Navigazione cliccando sui puntini
-dots.forEach(dot => {
-    dot.addEventListener('click', (e) => {
-        const targetPage = parseInt(e.target.getAttribute('data-page'), 10);
-        updateCarousel(targetPage);
-    });
-});
-
-// Funzione per avviare lo scorrimento automatico
-function startAutoplay() {
-    autoplayTimer = setInterval(() => {
-        let next = currentPage + 1;
-        if (next >= totalPages) next = 0;
-        updateCarousel(next);
-    }, 4000); // Scorre ogni 4 secondi
-}
-
-// Funzione per fermare lo scorrimento automatico
-function stopAutoplay() {
-    clearInterval(autoplayTimer);
-}
-
-// Gestione mouse sopra il carosello per evitare disturbi alla lettura
-carouselContainer.addEventListener('mouseenter', stopAutoplay);
-carouselContainer.addEventListener('mouseleave', startAutoplay);
-
-// Funzionalità di ricerca istantanea tra le card dei corsi
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    
-    if (query !== "") {
-        stopAutoplay();
-        cards.forEach(card => {
-            const title = card.getAttribute('data-title');
-            const cat = card.getAttribute('data-category');
-            if (title.includes(query) || cat.includes(query)) {
-                card.style.opacity = "1";
-                card.style.transform = "scale(1)";
+    <script src="common.js"></script>
+    <script>
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const btns = document.querySelectorAll('.tab-btn');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
             } else {
-                card.style.opacity = "0.2";
-                card.style.transform = "scale(0.95)";
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                btns[0].classList.remove('active');
+                btns[1].classList.add('active');
             }
-        });
-    } else {
-        cards.forEach(card => {
-            card.style.opacity = "1";
-            card.style.transform = "scale(1)";
-        });
-        startAutoplay();
-    }
-});
+        }
 
-// Funzionalità contatore progressivo per le statistiche
-function animateStats() {
-    const counters = document.querySelectorAll('.stat-number');
-    counters.forEach(counter => {
-        const target = +counter.getAttribute('data-target');
-        const speed = target / 50;
-        
-        const updateCount = () => {
-            const count = +counter.innerText.replace('k+', '').replace('%', '').replace('+', '');
-            if (count < target) {
-                let nextValue = Math.ceil(count + speed);
-                if (nextValue > target) nextValue = target;
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+            const isDocente = document.getElementById('regIsDocente').checked;
+            const ruolo = isDocente ? 'docente' : 'studente';
+            const messageDiv = document.getElementById('registerMessage');
+            
+            if (!username || !password || !email) {
+                messageDiv.textContent = 'Compila tutti i campi';
+                messageDiv.className = 'message error';
+                return;
+            }
+            
+            const result = await registerUser(username, password, ruolo, email);
+            
+            if (result.success) {
+                messageDiv.textContent = 'Registrazione completata! Ora puoi accedere.';
+                messageDiv.className = 'message success';
                 
-                if (target === 15000) {
-                    counter.innerText = (nextValue / 1000).toFixed(0) + 'k+';
-                } else if (target === 94) {
-                    counter.innerText = nextValue + '%';
-                } else {
-                    counter.innerText = nextValue + '+';
-                }
-                setTimeout(updateCount, 20);
+                setTimeout(() => {
+                    switchTab('login');
+                    document.getElementById('regUsername').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regIsDocente').checked = false;
+                    messageDiv.className = 'message';
+                }, 1500);
+            } else {
+                messageDiv.textContent = result.error;
+                messageDiv.className = 'message error';
             }
-        };
-        updateCount();
-    });
-}
+        }
 
-// Ricalcolo millimetrico se l'utente ridimensiona la finestra
-window.addEventListener('resize', () => updateCarousel(currentPage));
-
-// Inizializzazione di tutti i processi all'avvio completo
-window.addEventListener('load', () => {
-    updateCarousel(0);
-    startAutoplay();
-    animateStats();
-});
-</script>
-
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const isDocente = document.getElementById('loginIsDocente').checked;
+            const ruoloAtteso = isDocente ? 'docente' : 'studente';
+            const messageDiv = document.getElementById('loginMessage');
+            
+            const result = await loginUser(username, password, ruoloAtteso);
+            
+            if (result.success) {
+                setCurrentUser(result.user);
+                
+                if (result.user.ruolo === 'docente') {
+                    window.location.href = 'home_docente.html';
+                } else {
+                    window.location.href = 'home_studente.html';
+                }
+            } else {
+                messageDiv.textContent = result.error;
+                messageDiv.className = 'message error';
+            }
+        }
+    </script>
+</body>
+</html>
